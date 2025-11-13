@@ -1,82 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Unlock Reading • AstroGate</title>
-  <link rel="stylesheet" href="../assets/css/base.css" />
-  <link rel="stylesheet" href="../assets/css/theme.css" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Unlock Your Reading • AstroGate</title>
 
-  <script>
-    // Track completed tasks (localStorage)
-    let completed = Number(localStorage.getItem("tasks_done") || 0);
+    <!-- Re-use existing styles -->
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
 
-    function goToCPA() {
-      window.location.href =
-        "https://www.viral782.com/unlock/jyDakSOq"; // your live CPAlead locker
-    }
+    <style>
+      :root {
+        color-scheme: dark;
+      }
 
-    function markDone() {
-      completed++;
-      localStorage.setItem("tasks_done", completed);
-      location.reload();
-    }
-  </script>
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+      }
 
-  <style>
-    .card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,215,0,0.25);
-      padding: 22px;
-      border-radius: 12px;
-      text-align: center;
-    }
-    .btn {
-      background: gold;
-      color: black;
-      padding: 12px 18px;
-      border-radius: 8px;
-      display: inline-block;
-      margin-top: 12px;
-      font-weight: bold;
-    }
-  </style>
+      .card {
+        border-radius: 16px;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        background: rgba(3, 10, 30, 0.9);
+        padding: 18px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+      }
 
-</head>
+      .progress {
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: #ffd700;
+        margin-bottom: 8px;
+      }
 
-<body class="sky-static">
-  <div class="container">
+      .hint {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
 
-    <h2>Complete Tasks to Unlock Your Reading</h2>
+      .btn {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 0.7rem 1.3rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #ffd700, #f3b547);
+        border: none;
+        color: #120c00;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+      }
 
-    <div class="card">
-      <p><strong>Progress:</strong> <span id="progress"></span></p>
+      .btn[disabled] {
+        opacity: 0.6;
+        cursor: default;
+      }
 
-      <script>
-        document.getElementById("progress").innerText =
-          completed + " / 3 tasks completed";
-      </script>
+      iframe {
+        width: 100%;
+        height: 620px;
+        border: none;
+        border-radius: 14px;
+        margin-top: 14px;
+        background: #020617;
+      }
+    </style>
 
-      <div id="step-area"></div>
+    <script>
+      // how many tasks are required in total
+      const REQUIRED_TASKS = 3;
 
-      <script>
-        if (completed < 3) {
-          document.getElementById("step-area").innerHTML = `
-            <p>You must complete <strong>3 tasks</strong> to unlock your reading.</p>
-            <a class="btn" onclick="goToCPA()">Start Task ${completed + 1}</a>
-            <p style="margin-top:12px;color:gray;">After completing the task, click the button below.</p>
-            <a class="btn" style="background:#444;color:#fff" onclick="markDone()">I completed the task</a>
-          `;
-        } else {
-          document.getElementById("step-area").innerHTML = `
-            <p style="color:lightgreen;font-size:1.3rem;">🎉 All tasks completed!</p>
-            <a href="./reading.html" class="btn">Unlock Reading</a>
-          `;
+      function getDone() {
+        return Number(localStorage.getItem("astrogate_tasks_done") || 0);
+      }
+
+      function setDone(v) {
+        localStorage.setItem("astrogate_tasks_done", String(v));
+      }
+
+      function markTaskCompleted() {
+        let done = getDone();
+        if (done >= REQUIRED_TASKS) return;
+
+        done += 1;
+        setDone(done);
+        renderState();
+      }
+
+      function resetTasks() {
+        // for testing / debugging
+        localStorage.removeItem("astrogate_tasks_done");
+        renderState();
+      }
+
+      function renderState() {
+        const done = getDone();
+        const progress = document.getElementById("js-progress");
+        const msg = document.getElementById("js-message");
+        const doneBtn = document.getElementById("js-done-btn");
+        const actions = document.getElementById("js-actions");
+        const unlock = document.getElementById("js-unlock");
+
+        if (progress) {
+          progress.textContent = `${done} / ${REQUIRED_TASKS} tasks completed`;
         }
-      </script>
 
+        if (done < REQUIRED_TASKS) {
+          msg.innerHTML =
+            "Complete tasks inside the wall below. Each time you finish one, click <strong>“I completed one task”</strong>.";
+          actions.style.display = "block";
+          unlock.style.display = "none";
+          doneBtn.disabled = false;
+        } else {
+          msg.textContent =
+            "Beautiful. You’ve completed enough tasks to unlock your spiritual reading.";
+          actions.style.display = "none";
+          unlock.style.display = "block";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", renderState);
+    </script>
+  </head>
+
+  <body class="sky-static">
+    <div class="container">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+
+        <nav class="nav">
+          <a href="./topics.html">Topics</a>
+          <a href="./about.html">About</a>
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <main class="wrap">
+        <h1>Complete Tasks to Unlock Your Reading</h1>
+
+        <div class="card">
+          <div class="progress" id="js-progress">0 / 3 tasks completed</div>
+          <p id="js-message" class="hint"></p>
+
+          <!-- 🔮 Your CPAlead Offerwall embedded here -->
+          <iframe
+            sandbox="allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-popups-to-escape-sandbox"
+            src="https://www.cdnflyer.com/list/jDtbT1"
+          ></iframe>
+
+          <div id="js-actions">
+            <button id="js-done-btn" class="btn" onclick="markTaskCompleted()">
+              I completed one task
+            </button>
+            <p class="hint">
+              After finishing any offer (installing app, survey, etc.), return
+              here and tap this button. Do this <strong>3 times</strong> to
+              unlock your reading.
+            </p>
+          </div>
+
+          <div id="js-unlock" style="display:none; margin-top:14px;">
+            <!-- TODO: change reading.html path/topic if needed -->
+            <a href="./reading.html" class="btn">Unlock My Reading</a>
+            <p class="hint" style="margin-top:8px;">
+              Your destiny gate is open. This will take you to your astrology
+              reading page.
+            </p>
+          </div>
+
+          <!-- Optional reset button for testing only: remove in production
+          <button class="btn" style="margin-top:10px;background:#1f2937;color:#fff;"
+                  onclick="resetTasks()">Reset tasks (testing)</button>
+          -->
+        </div>
+      </main>
     </div>
-
-  </div>
-</body>
+  </body>
 </html>
