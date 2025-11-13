@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Palmistry 🔮 • AstroRealm</title>
+    <meta
+      name="description"
+      content="Palmistry on AstroRealm. Upload your palm photo, then complete three tasks to unlock your reading."
+    />
+
+    <!-- From /pages/* go one level up to /assets -->
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 1px, 1px);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      select,
+      textarea,
+      input[type='file'],
+      input[type='text'] {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        color: #fff;
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: 12px;
+        padding: 10px 12px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      /* Dark dropdown styling */
+      select,
+      select:focus {
+        background-color: #0a0b10;
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+      }
+      select option {
+        background-color: #0a0b10;
+        color: var(--text);
+      }
+      select:focus {
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.35);
+        border-color: var(--gold);
+      }
+      select {
+        background-image: linear-gradient(to bottom, transparent 0%, transparent 100%),
+          url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4af37'><path d='M4 6l4 4 4-4'/></svg>");
+        background-repeat: no-repeat, no-repeat;
+        background-position: right 0.8rem center, right 0.8rem center;
+        background-size: 16px 16px, 16px 16px;
+        padding-right: 2.2rem;
+      }
+
+      .center {
+        text-align: center;
+      }
+      .mt-1 {
+        margin-top: 0.6rem;
+      }
+      .mt-2 {
+        margin-top: 1rem;
+      }
+      .mt-3 {
+        margin-top: 1.6rem;
+      }
+
+      .preview-frame {
+        max-width: 320px;
+        border-radius: 12px;
+        border: 1px solid rgba(212, 175, 55, 0.25);
+        display: inline-block;
+        padding: 10px;
+        opacity: 0.85;
+      }
+
+      /* file button nicer */
+      input[type='file']::-webkit-file-upload-button,
+      input[type='file']::file-selector-button {
+        background: linear-gradient(90deg, #cfb053, #a67c00);
+        color: #140f02;
+        font-weight: 700;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 12px;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+
+      .grid-auto {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .error {
+        color: #ffb4b4;
+        font-size: 0.9rem;
+        display: none;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body class="sky-static">
+    <div class="container">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+        <nav class="nav">
+          <a href="./topics.html">Topics</a>
+
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <h1 class="mt-2">Palmistry 🔮</h1>
+      <p class="hint">
+        Upload a clear photo of your palm, share your focus line and question, then
+        <strong>complete three tasks</strong> to unlock your reading.
+        <br />
+        This page does <strong>not</strong> upload your image to our server; it stays in your
+        browser/device.
+      </p>
+
+      <!-- Palmistry Intake -->
+      <section class="card mt-2" aria-label="Palmistry Upload & Details">
+        <form id="palmForm" novalidate>
+          <div class="grid-auto">
+            <label class="field">
+              <span>Which hand?</span>
+              <select id="handSide">
+                <option value="right">Right hand</option>
+                <option value="left">Left hand</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Dominance</span>
+              <select id="dominant">
+                <option value="dominant">Dominant hand</option>
+                <option value="non-dominant">Non-dominant hand</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Focus line</span>
+              <select id="focusLine">
+                <option value="life">Life line</option>
+                <option value="fate">Fate line</option>
+                <option value="heart">Heart line</option>
+                <option value="head">Head line</option>
+                <option value="marriage">Marriage lines</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid-auto mt-2">
+            <label class="field">
+              <span>Your Name (optional)</span>
+              <input id="seekerName" type="text" placeholder="e.g., Aisha Musa" />
+            </label>
+
+            <label class="field">
+              <span>Answer Language <span style="color: var(--gold)">*</span></span>
+              <select id="language" required>
+                <option value="" disabled selected>Choose language</option>
+                <option value="en">English</option>
+                <option value="ha">Hausa</option>
+                <option value="ar">Arabic</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+                <option value="hi">Hindi</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="field mt-2">
+            <span>Your Question <span style="color: var(--gold)">*</span></span>
+            <textarea
+              id="question"
+              placeholder="e.g., What is my Life line saying about the next 3 months?"
+              required
+            ></textarea>
+          </label>
+
+          <div class="grid mt-2" style="grid-template-columns: 1fr">
+            <label class="center field">
+              <span>Palm photo (recommended) <span style="color: var(--gold)">*</span></span>
+              <input id="handPhoto" type="file" accept="image/*" />
+            </label>
+
+            <div class="center mt-1">
+              <div class="preview-frame">
+                <small style="color: #cfcfe6">
+                  Choose a clear palm photo. Many devices show a small thumbnail preview in the file
+                  picker.
+                </small>
+              </div>
+              <p class="hint mt-1">
+                Tip: Use daylight, keep the entire palm and wrist crease inside the frame, and avoid
+                heavy shadows.
+              </p>
+            </div>
+          </div>
+
+          <div class="error" id="formError"></div>
+
+          <div class="mt-2 center">
+            <!-- ✅ Live CPA/locker URL (Viral782). Change here if you switch networks -->
+            <a href="https://www.viral782.com/unlock/jyDakSOq" id="unlockBtn" class="unlock-btn"
+              >Continue to Unlock (3 Tasks)</a
+            >
+          </div>
+
+          <p class="hint mt-1 center">
+            Compliance: No medical, legal, gambling, or guaranteed financial outcomes.
+          </p>
+        </form>
+      </section>
+
+      <!-- Quick question shortcuts (static links) -->
+      <h2 class="mt-3">Quick questions</h2>
+      <div class="grid mt-1">
+        <a class="card" href="./ask.html" title="Life line • health & energy">
+          <h3>Life line • health & energy</h3>
+        </a>
+        <a class="card" href="./ask.html" title="Fate line • career timing">
+          <h3>Fate line • career timing</h3>
+        </a>
+        <a class="card" href="./ask.html" title="Heart line • love clarity">
+          <h3>Heart line • love clarity</h3>
+        </a>
+      </div>
+
+      <footer class="footer mt-3">
+        © 2025 AstroRealm · <a href="./terms.html">Terms</a> · <a href="./privacy.html">Privacy</a>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const unlockBtn = document.getElementById('unlockBtn');
+        const errorEl = document.getElementById('formError');
+
+        function val(id) {
+          return (document.getElementById(id)?.value || '').trim();
+        }
+
+        unlockBtn.addEventListener('click', (e) => {
+          errorEl.style.display = 'none';
+
+          const question = val('question');
+          const language = val('language');
+          const handSide = val('handSide') || 'right';
+          const dominant = val('dominant') || 'dominant';
+          const focusLine = val('focusLine') || 'life';
+          const name = val('seekerName') || null;
+          const fileInput = document.getElementById('handPhoto');
+          const file = fileInput && fileInput.files && fileInput.files[0];
+
+          if (!question || !language) {
+            e.preventDefault();
+            errorEl.textContent = 'Please provide your question and choose a language.';
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          if (!file) {
+            e.preventDefault();
+            errorEl.textContent = 'Please choose a clear palm photo before continuing.';
+            errorEl.style.display = 'block';
+            return;
+          }
+
+          const payload = {
+            topic: 'palmistry',
+            method: 'palmistry',
+            language,
+            question,
+            seeker: { name },
+            palm: {
+              handSide,
+              dominant,
+              focusLine,
+              hasPhoto: true,
+              fileName: file.name || null,
+            },
+            createdAt: new Date().toISOString(),
+          };
+
+          try {
+            localStorage.setItem('astroReading', JSON.stringify(payload));
+            // Unlock flow requires 3 tasks
+            localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+          } catch (err) {
+            console.warn('localStorage failed', err);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Map /api/reading → the serverless function
+[[redirects]]
+  from = "/api/reading"
+  to = "/.netlify/functions/reading"
+  status = 200
+  force = true

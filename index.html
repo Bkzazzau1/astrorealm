@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Unlock your destiny with AstroRealm – palmistry, zodiac, geomancy, horary & weekly guidance."
+    />
+    <title>AstroRealm • Unlock Your Reading</title>
+
+    <!-- Styles -->
+    <link rel="preload" href="./assets/css/theme.css" as="style" />
+    <link rel="stylesheet" href="./assets/css/base.css" />
+    <link rel="stylesheet" href="./assets/css/theme.css" />
+
+    <!-- Safety overrides (ensure background layers don't push content) -->
+    <style>
+      #starfield,
+      .planets {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+        pointer-events: none;
+        display: block;
+      }
+      .container {
+        position: relative;
+        z-index: 1;
+        padding-top: 12px;
+      }
+      .container > :first-child {
+        margin-top: 0 !important;
+      }
+
+      /* Hero layout */
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+        gap: 1.5rem;
+        align-items: center;
+        margin-top: 1rem;
+      }
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hero-main h1 {
+        margin-bottom: 0.4rem;
+      }
+      .hero-tagline {
+        max-width: 32rem;
+      }
+      .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.15rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 215, 0, 0.5);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 0.4rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .hero-pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ffd700;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+      }
+      .hero-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.8rem 0 0;
+        display: grid;
+        gap: 0.4rem;
+      }
+      .hero-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+      }
+      .hero-list-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 215, 0, 0.7);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        color: #ffd700;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.1rem;
+        align-items: center;
+      }
+      .hero-secondary {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .hero-card {
+        border-radius: 18px;
+        border: 1px solid rgba(255, 215, 0, 0.35);
+        padding: 1rem 1.1rem;
+        background: radial-gradient(circle at top, rgba(255, 215, 0, 0.12), transparent 65%);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      }
+      .hero-card h2 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      .hero-steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+      }
+      .hero-step-label {
+        font-weight: 600;
+        color: #ffd700;
+        margin-right: 0.3rem;
+      }
+
+      /* Topic grid tweaks */
+      .topics-grid {
+        margin-top: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        align-items: stretch;
+      }
+      .card-topic {
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        background: radial-gradient(circle at top, rgba(255, 215, 0, 0.06), transparent 60%);
+        transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.18s ease-out;
+      }
+      .card-topic:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 215, 0, 0.9);
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.7);
+      }
+      .card-topic h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .card-topic h3 span.emoji {
+        font-size: 1.4rem;
+      }
+
+      .unlock-note {
+        margin-top: 0.6rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .footer {
+        margin-top: 2rem;
+      }
+    </style>
+
+    <!-- Main JS (for reading/unlock flow etc.) -->
+    <script defer src="./assets/js/main.js"></script>
+  </head>
+
+  <!-- Use static star background via CSS -->
+  <body class="sky-static">
+    <!-- Background layers (kept for compatibility; hidden by sky-static rules) -->
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div class="planets" aria-hidden="true"></div>
+
+    <div class="container">
+      <header class="header">
+        <a class="logo" href="./index.html">
+          <img src="./assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+        <nav class="nav">
+          <a href="./pages/topics.html">Topics</a>
+          <a href="./pages/about.html">About</a>
+          <a href="./pages/contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-main">
+          <div class="hero-pill">
+            <span class="hero-pill-dot"></span>
+            <span>Astrology • Palmistry • Geomancy • Horary</span>
+          </div>
+          <h1>Unlock Your Cosmic Guidance</h1>
+          <p class="hint hero-tagline">
+            A single portal for zodiac, palmistry, geomancy, destiny, love, money, career, sport,
+            and weekly guidance — in your chosen language.
+          </p>
+
+          <ul class="hero-list">
+            <li>
+              <span class="hero-list-icon">1</span>
+              <span>Choose a topic: love, money, career, destiny, sport, weekly, palm & more.</span>
+            </li>
+            <li>
+              <span class="hero-list-icon">2</span>
+              <span>Share simple details (name, birth data, match info, or palm photo).</span>
+            </li>
+            <li>
+              <span class="hero-list-icon">3</span>
+              <span
+                >Complete <strong>three</strong> tasks to unlock your personalized reading.</span
+              >
+            </li>
+          </ul>
+
+          <div class="hero-actions">
+            <a href="./pages/topics.html" class="unlock-btn">Browse All Topics</a>
+            <p class="hero-secondary">Calm, reflective guidance with no guaranteed results.</p>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <h2>How the unlock works</h2>
+          <ul class="hero-steps">
+            <li>
+              <span class="hero-step-label">Step 1:</span>
+              Pick a topic (e.g., Love, Money, Career, Destiny, AstroSport).
+            </li>
+            <li>
+              <span class="hero-step-label">Step 2:</span>
+              Fill in your question and details on the topic page, then continue to the unlock page.
+            </li>
+            <li>
+              <span class="hero-step-label">Step 3:</span>
+              Complete <strong>3 tasks</strong> on the offerwall to unlock your reading page.
+            </li>
+            <li>
+              <span class="hero-step-label">Step 4:</span>
+              Our reading engine uses your saved details to generate a long, gentle, astrology-style
+              answer.
+            </li>
+          </ul>
+          <p class="unlock-note">
+            Not a substitute for professional medical, legal, or financial advice. No gambling
+            predictions or guaranteed outcomes.
+          </p>
+        </aside>
+      </section>
+
+      <!-- Topic shortcuts -->
+      <section aria-label="Quick topic shortcuts">
+        <h2 class="mt-2">Start with a Topic</h2>
+        <p class="hint">
+          You can always change topic later. Each page lets you choose your language and question
+          style.
+        </p>
+
+        <div class="grid topics-grid">
+          <a class="card card-topic" href="./pages/zodiac.html">
+            <h3><span class="emoji">✨</span> Zodiac Reading</h3>
+            <p>Your sign, your timing, your moment.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/palmistry.html">
+            <h3><span class="emoji">🔮</span> Palmistry</h3>
+            <p>Life, fate, and heart lines — decoded from your palm photo.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/geomancy.html">
+            <h3><span class="emoji">🌙</span> Geomancy</h3>
+            <p>Cast figures and interpret your shield chart for any clear question.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/destiny.html">
+            <h3><span class="emoji">🌌</span> Destiny Reading</h3>
+            <p>What’s unfolding for you now, this week, or this month.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/weekly.html">
+            <h3><span class="emoji">🪞</span> Weekly Guidance</h3>
+            <p>7–10 day energy, priorities, and timing windows.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/love.html">
+            <h3><span class="emoji">💖</span> Love Reading</h3>
+            <p>Seeker + partner details for clarity, boundaries, and timing to connect.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/astrosport.html">
+            <h3><span class="emoji">⚽</span> AstroSport</h3>
+            <p>Mindset and timing around matches. No gambling predictions.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/money.html">
+            <h3><span class="emoji">💰</span> Money & Prosperity</h3>
+            <p>Cashflow, risk awareness, and calmer decision-making.</p>
+          </a>
+
+          <a class="card card-topic" href="./pages/career.html">
+            <h3><span class="emoji">🏆</span> Career & Purpose</h3>
+            <p>Next steps and timing, using zodiac or horary methods.</p>
+          </a>
+        </div>
+      </section>
+
+      <!-- Direct CPALead CTA (optional extra entry) -->=
+      <section style="margin-top: 1.6rem">
+        <!-- Replace with your CPAlead locker URL -->
+        <a href="https://www.viral782.com/unlock/jyDakSOq" class="unlock-btn"
+          >Direct Unlock (3 Tasks)</a
+        >
+        <p class="unlock-note">
+          You can also go straight to the unlock page. After completing three tasks, you’ll be
+          redirected to your reading if your details are already saved.
+        </p>
+      </section>
+
+      <footer class="footer">
+        © 2025 AstroRealm · Night-sky theme ·
+        <a href="./pages/terms.html">Terms</a> ·
+        <a href="./pages/privacy.html">Privacy</a>
+      </footer>
+    </div>
+  </body>
+</html>

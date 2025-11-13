@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>All Topics 📚 • AstroRealm</title>
+    <meta name="description" content="Explore all AstroRealm topics and unlock your reading." />
+
+    <!-- From /pages/* go one level up to /assets -->
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+    <style>
+      .center {
+        text-align: center;
+      }
+
+      .topics-intro {
+        max-width: 620px;
+        margin: 0 auto;
+      }
+
+      .topic-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        align-items: stretch;
+      }
+
+      .topic-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        background: radial-gradient(circle at top, rgba(255, 215, 0, 0.08), transparent 60%);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+        transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.18s ease-out;
+      }
+
+      .topic-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 215, 0, 0.9);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+      }
+
+      .topic-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .topic-emoji {
+        font-size: 1.6rem;
+      }
+
+      .topic-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.12rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .topic-pill span {
+        font-size: 0.9em;
+      }
+
+      .topic-body p {
+        margin: 0.2rem 0 0.4rem;
+      }
+
+      .row-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 0.75rem;
+      }
+
+      .mini-btn {
+        display: inline-block;
+        padding: 0.55rem 1.1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 215, 0, 0.85);
+        color: #140f02;
+        background: linear-gradient(90deg, #cfb053, #a67c00);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, filter 0.18s ease-out;
+      }
+
+      .mini-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+        filter: brightness(1.03);
+      }
+
+      .mini-btn:active {
+        transform: translateY(0);
+        box-shadow: none;
+        filter: brightness(0.96);
+      }
+
+      .mt-2 {
+        margin-top: 1rem;
+      }
+      .mt-1 {
+        margin-top: 0.6rem;
+      }
+    </style>
+  </head>
+  <body class="sky-static">
+    <div class="container">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+        <nav class="nav">
+          <a href="./topics.html" aria-current="page">Topics</a>
+
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <h1 class="mt-2">All Topics 📚</h1>
+      <p class="hint topics-intro center">
+        Choose a path below and open its page to share your details.
+        <br />
+        Each topic has its own questions, language choice, and
+        <strong>3-task unlock</strong> flow.
+      </p>
+
+      <!-- Topic grid -->
+      <section class="grid mt-2 topic-grid">
+        <!-- Zodiac -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">♈</div>
+            <div>
+              <h3>Zodiac Reading</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Zodiac</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Sign-based guidance, cycles, and timing windows based on your birth data.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./zodiac.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Palmistry -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">🔮</div>
+            <div>
+              <h3>Palmistry</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Palm</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Upload your palm and ask about Life, Fate, Heart, Head, or Marriage lines.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./palmistry.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Geomancy -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">🌙</div>
+            <div>
+              <h3>Geomancy</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Figures</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Traditional figure casting for questions about life, work, travel, and more.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./geomancy.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Destiny -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">🌌</div>
+            <div>
+              <h3>Destiny Reading</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Horary</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Overall direction, risks to avoid, and windows to act using horary timing.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./destiny.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Weekly Guidance -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">🪞</div>
+            <div>
+              <h3>Weekly Guidance</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Zodiac</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>7–10 day focus for priorities, best days to push, and gentle course corrections.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./weekly.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Love -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">💖</div>
+            <div>
+              <h3>Love Reading</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Horary + Names</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Seeker + partner details for clarity, boundaries, and timing to connect.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./love.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- AstroSport -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">⚽</div>
+            <div>
+              <h3>AstroSport</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Horary</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Mindset & timing for fans, using match details — no gambling predictions.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./astrosport.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Money -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">💰</div>
+            <div>
+              <h3>Money & Prosperity</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Horary</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Cashflow, risks, and safer choices through horary-style timing & guidance.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./money.html">Open topic</a>
+          </div>
+        </div>
+
+        <!-- Career -->
+        <div class="card topic-card">
+          <div class="topic-header">
+            <div class="topic-emoji">🏆</div>
+            <div>
+              <h3>Career & Purpose</h3>
+              <div class="topic-pill"><span>Method:</span><strong>Zodiac + Horary</strong></div>
+            </div>
+          </div>
+          <div class="topic-body">
+            <p>Direction, timing, and proof of work — choose zodiac or horary on the topic page.</p>
+          </div>
+          <div class="row-actions">
+            <a class="mini-btn" href="./career.html">Open topic</a>
+          </div>
+        </div>
+      </section>
+
+      <p class="hint mt-1 center">
+        Compliance: No medical, legal, gambling, or guaranteed financial outcomes.
+      </p>
+
+      <footer class="footer mt-3">
+        © 2025 AstroRealm · <a href="./terms.html">Terms</a> · <a href="./privacy.html">Privacy</a>
+      </footer>
+    </div>
+  </body>
+</html>

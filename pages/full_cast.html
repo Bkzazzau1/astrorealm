@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Shield Chart • AstroRealm</title>
+    <meta name="description" content="Your full geomancy shield chart generated from 4 figures." />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+    <style>
+      :root {
+        --bg: #0d1b2a;
+        --panel: #1b263b;
+        --gold: #d4af37;
+      }
+      body.sky-static {
+        background-color: var(--bg);
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+      .hint {
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .q-card {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .q-card i {
+        opacity: 0.7;
+      }
+
+      .row-figs {
+        display: flex;
+        gap: 18px;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+      }
+      .fig {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 82px;
+      }
+      .fig-box {
+        padding: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+      }
+      .dot-row {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin: 6px 0;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      }
+      .fig-label {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #ffffffb3;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 0;
+        font-weight: 600;
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      /* Hide Save Chart button but keep logic intact */
+      .btn-save {
+        display: none !important;
+      }
+
+      /* View Interpretation in gold */
+      .btn-view {
+        background: var(--gold);
+        color: #0a0a0a;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      /* Modal base */
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal.show {
+        display: flex;
+      }
+      .modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: #0008;
+        backdrop-filter: blur(2px);
+      }
+      .modal-card {
+        position: relative;
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 16px;
+        width: min(520px, 92vw);
+      }
+      .field {
+        margin: 10px 0;
+      }
+
+      /* Select / input styling: black dropdowns */
+      .input,
+      .select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: #000;
+        color: var(--text);
+      }
+      .select option,
+      select option {
+        background: #000;
+        color: #fff;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+      .pill {
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      /* Confirm & Continue buttons in gold */
+      .pill.primary {
+        background: var(--gold);
+        color: #0a0a0a;
+        border-color: var(--gold);
+        font-weight: 700;
+      }
+
+      /* Top bar mimic */
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        margin-bottom: 8px;
+      }
+      .top-actions a {
+        color: var(--text);
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body class="sky-static">
+    <div class="container wrap">
+      <header class="header">
+        <a class="logo" href="../index.html"
+          ><img src="../assets/img/logo.svg" alt="AstroRealm logo" /><span>AstroRealm</span></a
+        >
+        <nav class="nav">
+          <a href="./casting.html">Re-cast</a>
+          <a href="./topics.html">Topics</a>
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <!-- AppBar actions -->
+      <div class="topbar">
+        <h1>Shield Chart</h1>
+        <div class="top-actions">
+          <a href="../index.html" title="Back to home">Home</a>
+        </div>
+      </div>
+
+      <!-- Question card -->
+      <div class="card q-card">
+        <i>❓</i>
+        <p id="qtext" style="margin: 0"></p>
+      </div>
+
+      <!-- Figures layout -->
+      <div class="mt-2">
+        <!-- Row 1: T8..T1 (exact Flutter order) -->
+        <div id="row1" class="row-figs mt-1"></div>
+
+        <!-- Row 2: T12..T9 -->
+        <div id="row2" class="row-figs mt-2"></div>
+
+        <!-- Row 3: T14..T13 -->
+        <div id="row3" class="row-figs mt-2"></div>
+
+        <!-- Row 4: T15 -->
+        <div id="row4" class="row-figs mt-2"></div>
+
+        <!-- Row 5: T16 -->
+        <div id="row5" class="row-figs mt-2"></div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="toolbar mt-3">
+        <button id="saveBtn" class="btn btn-save">💾 <span id="saveLabel">Save Chart</span></button>
+        <button id="viewBtn" class="btn btn-view">
+          📖 <span id="viewLabel">View Interpretation</span>
+        </button>
+      </div>
+
+      <footer class="footer mt-3">
+        © 2025 AstroRealm · <a href="./terms.html">Terms</a> · <a href="./privacy.html">Privacy</a>
+      </footer>
+    </div>
+
+    <!-- Settings modal (must confirm before viewing interpretation) -->
+    <div
+      id="settingsModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settingsTitle"
+    >
+      <div class="modal-backdrop"></div>
+      <div class="modal-card">
+        <h3 id="settingsTitle" style="margin: 0 0 8px">Interpretation Settings</h3>
+        <p class="hint" style="margin: 0 0 8px">Choose language and religion, then continue.</p>
+        <div class="field">
+          <label class="hint" for="langSel">Language</label>
+          <select id="langSel" class="select">
+            <option value="en" selected>English</option>
+            <option value="ha">Hausa</option>
+            <option value="ar">Arabic</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="hi">Hindi</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="hint" for="relSel">Religion</label>
+          <select id="relSel" class="select">
+            <option value="" selected disabled>Choose…</option>
+            <option value="islam">Islam</option>
+            <option value="christian">Christian</option>
+            <option value="traditional">Traditional</option>
+            <option value="none">Neutral</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="pill" id="cancelSettings">Cancel</button>
+          <button class="pill primary" id="confirmSettings">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unlock modal (still same logic, just nicer text) -->
+    <div id="adModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="adTitle">
+      <div class="modal-backdrop"></div>
+      <div class="modal-card" style="text-align: center">
+        <h3 id="adTitle" style="margin: 0 0 10px">Unlock Your Reading</h3>
+        <p class="hint">Complete one unlock to view your full geomancy interpretation.</p>
+        <div id="adTimer" style="font-size: 28px; margin: 10px 0">5</div>
+        <div class="modal-actions" style="justify-content: center">
+          <button id="adClose" class="pill primary" disabled>Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 🔗 LIVE CPALEAD LOCKER
+      const CPALOCKER_URL = 'https://www.viral782.com/unlock/jyDakSOq';
+
+      // -------------------- Utilities & State --------------------
+      const qText = document.getElementById('qtext');
+
+      const row1 = document.getElementById('row1');
+      const row2 = document.getElementById('row2');
+      const row3 = document.getElementById('row3');
+      const row4 = document.getElementById('row4');
+      const row5 = document.getElementById('row5');
+
+      const saveBtn = document.getElementById('saveBtn');
+      const saveLabel = document.getElementById('saveLabel');
+      const viewBtn = document.getElementById('viewBtn');
+      const viewLabel = document.getElementById('viewLabel');
+
+      const settingsModal = document.getElementById('settingsModal');
+      const langSel = document.getElementById('langSel');
+      const relSel = document.getElementById('relSel');
+      const cancelSettings = document.getElementById('cancelSettings');
+      const confirmSettings = document.getElementById('confirmSettings');
+
+      const adModal = document.getElementById('adModal');
+      const adTimer = document.getElementById('adTimer');
+      const adClose = document.getElementById('adClose');
+
+      let NAV_LOCK = false; // 🔒 prevent double "View Interpretation"
+      let SAVING = false; // 🔒 prevent double "Save Chart"
+      let rewardedShown = false;
+
+      // Token → Latin name (same map as Flutter)
+      const LATIN_BY_TOKEN = {
+        1111: 'Via',
+        2222: 'Populus',
+        2211: 'Fortuna Major',
+        1122: 'Fortuna Minor',
+        2121: 'Acquisitio',
+        1212: 'Amissio',
+        2212: 'Albus',
+        2122: 'Rubeus',
+        1121: 'Puer',
+        1211: 'Puella',
+        2112: 'Coniunctio',
+        1221: 'Carcer',
+        2221: 'Tristitia',
+        1222: 'Laetitia',
+        2111: 'Caput Draconis',
+        1112: 'Cauda Draconis',
+      };
+      const latinFromFig = (fig) => LATIN_BY_TOKEN[fig.join('')] || fig.join('');
+
+      const combine = (a, b) => [0, 1, 2, 3].map((i) => ((a[i] + b[i]) % 2 === 0 ? 2 : 1));
+
+      function figBox(fig, label) {
+        const wrap = document.createElement('div');
+        wrap.className = 'fig';
+        const box = document.createElement('div');
+        box.className = 'fig-box';
+        fig.forEach((v) => {
+          const row = document.createElement('div');
+          row.className = 'dot-row';
+          if (v === 1) {
+            const d = document.createElement('div');
+            d.className = 'dot';
+            row.appendChild(d);
+          } else {
+            const d1 = document.createElement('div');
+            d1.className = 'dot';
+            const d2 = document.createElement('div');
+            d2.className = 'dot';
+            row.appendChild(d1);
+            row.appendChild(d2);
+          }
+          box.appendChild(row);
+        });
+        const lab = document.createElement('div');
+        lab.className = 'fig-label';
+        lab.textContent = label;
+        wrap.appendChild(box);
+        wrap.appendChild(lab);
+        return wrap;
+      }
+
+      // --------------- Load data from casting step ---------------
+      let payload = null;
+      try {
+        payload = JSON.parse(localStorage.getItem('astro_cast_payload') || 'null');
+      } catch {}
+      if (!payload || !Array.isArray(payload.mothers) || payload.mothers.length !== 4) {
+        // fallback UI
+        document.body.insertAdjacentHTML(
+          'beforeend',
+          `<div class="container wrap"><div class="card mt-2" style="text-align:center">
+          <p>Could not find your casting in this browser.</p>
+          <a class="pill primary" href="./casting.html">Cast again</a>
+        </div></div>`
+        );
+      }
+
+      const mothers = (payload?.mothers || []).map((a) => a.map(Number));
+      const question = (payload?.question || '').trim();
+      const selectedLanguageInit = payload?.language || 'en';
+      qText.textContent = question;
+
+      // Build daughters, nieces, witnesses, judge, reconciler
+      const daughters = [
+        [mothers[0][0], mothers[1][0], mothers[2][0], mothers[3][0]],
+        [mothers[0][1], mothers[1][1], mothers[2][1], mothers[3][1]],
+        [mothers[0][2], mothers[1][2], mothers[2][2], mothers[3][2]],
+        [mothers[0][3], mothers[1][3], mothers[2][3], mothers[3][3]],
+      ];
+      const nieces = [
+        combine(mothers[0], mothers[1]),
+        combine(mothers[2], mothers[3]),
+        combine(daughters[0], daughters[1]),
+        combine(daughters[2], daughters[3]),
+      ];
+      const witnesses = [combine(nieces[1], nieces[0]), combine(nieces[3], nieces[2])];
+      const judge = combine(witnesses[1], witnesses[0]);
+      const reconciler = combine(judge, mothers[0]);
+
+      // ---------- Render (exact same order as your Flutter UI) ----------
+      // Row1: T8 T7 T6 T5 T4 T3 T2 T1
+      [
+        daughters[3],
+        daughters[2],
+        daughters[1],
+        daughters[0],
+        mothers[3],
+        mothers[2],
+        mothers[1],
+        mothers[0],
+      ].forEach((f, i) =>
+        row1.appendChild(figBox(f, ['T8', 'T7', 'T6', 'T5', 'T4', 'T3', 'T2', 'T1'][i]))
+      );
+
+      // Row2: T12 T11 T10 T9
+      [nieces[3], nieces[2], nieces[1], nieces[0]].forEach((f, i) =>
+        row2.appendChild(figBox(f, ['T12', 'T11', 'T10', 'T9'][i]))
+      );
+
+      // Row3: T14 T13
+      [witnesses[1], witnesses[0]].forEach((f, i) =>
+        row3.appendChild(figBox(f, ['T14', 'T13'][i]))
+      );
+
+      // Row4: T15
+      row4.appendChild(figBox(judge, 'T15'));
+
+      // Row5: T16
+      row5.appendChild(figBox(reconciler, 'T16'));
+
+      // --------------- Save Chart (localStorage + faux cloud) ---------------
+      async function saveChart() {
+        if (SAVING) return;
+        SAVING = true;
+        saveBtn.disabled = true;
+        saveLabel.textContent = 'Saving…';
+
+        try {
+          const mothersJson = JSON.stringify(mothers);
+          localStorage.setItem('saved_mothers', mothersJson);
+          localStorage.setItem('saved_question', question);
+          localStorage.setItem('saved_language', selectedLanguageInit);
+          localStorage.setItem('saved_date', new Date().toISOString());
+
+          // Store figure names like Flutter does
+          const allFigures = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
+          const figureNames = allFigures.map((f) => f.join(''));
+          // mimic FirebaseService.saveReading()
+          const cloud = JSON.parse(localStorage.getItem('astro_readings') || '[]');
+          cloud.push({ question, figures: figureNames, savedAt: Date.now() });
+          localStorage.setItem('astro_readings', JSON.stringify(cloud));
+
+          // toast
+          saveLabel.textContent = 'Saved!';
+          setTimeout(() => {
+            saveLabel.textContent = 'Save Chart';
+          }, 1200);
+        } catch (e) {
+          console.error('Save error:', e);
+          saveLabel.textContent = 'Failed — retry';
+        } finally {
+          saveBtn.disabled = false;
+          SAVING = false;
+        }
+      }
+      saveBtn.addEventListener('click', saveChart);
+
+      // ------------------ Settings → Unlock → CPAlead → reading.html ------------------
+      function openSettings() {
+        settingsModal.classList.add('show');
+      }
+      function closeSettings() {
+        settingsModal.classList.remove('show');
+      }
+      cancelSettings.addEventListener('click', () => {
+        closeSettings();
+        NAV_LOCK = false;
+        viewLabel.textContent = 'View Interpretation';
+      });
+
+      confirmSettings.addEventListener('click', () => {
+        const lang = langSel.value;
+        const rel = relSel.value;
+        if (!lang || !rel) {
+          alert('Choose both language and religion.');
+          return;
+        }
+        closeSettings();
+        maybeShowRewarded().then(() => {
+          // Build names_with_houses (English Latin) – kept for future use
+          const houses = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
+          const namesWithHouses = houses.map((f, i) => ({ house: i + 1, name: latinFromFig(f) }));
+
+          const interpPayload = {
+            language: lang,
+            religion: rel,
+            question,
+            names_with_houses: namesWithHouses,
+            figures: houses, // T1..T16
+            fromHistory: false,
+          };
+          localStorage.setItem('astro_interp_payload', JSON.stringify(interpPayload));
+
+          // 🔗 Send user through CPAlead, then back to reading.html (universal page)
+          const origin = window.location.origin || 'https://astrorealm.online';
+          const qs = new URLSearchParams({
+            topic: 'geomancy',
+            q: question || 'Geomancy interpretation',
+            lang: lang,
+            religion: rel,
+            from: 'geomancy',
+          });
+          const target = origin + '/pages/reading.html?' + qs.toString();
+          const lockerUrl = CPALOCKER_URL + '?redirect=' + encodeURIComponent(target);
+          location.href = lockerUrl;
+        });
+      });
+
+      async function maybeShowRewarded() {
+        if (rewardedShown) return;
+        rewardedShown = true;
+        // simple 5s countdown
+        adModal.classList.add('show');
+        let t = 5;
+        adTimer.textContent = String(t);
+        adClose.disabled = true;
+        const id = setInterval(() => {
+          t -= 1;
+          adTimer.textContent = String(t);
+          if (t <= 0) {
+            clearInterval(id);
+            adClose.disabled = false;
+            adClose.focus();
+          }
+        }, 1000);
+        await new Promise((res) =>
+          adClose.addEventListener(
+            'click',
+            () => {
+              adModal.classList.remove('show');
+              res();
+            },
+            { once: true }
+          )
+        );
+      }
+
+      viewBtn.addEventListener('click', () => {
+        if (NAV_LOCK) return;
+        NAV_LOCK = true;
+        viewBtn.disabled = true;
+        viewLabel.textContent = 'Opening…';
+        // ALWAYS open settings first (exact Flutter rule)
+        langSel.value = selectedLanguageInit || 'en';
+        relSel.value = '';
+        openSettings();
+        // re-enable if user cancels inside modal
+        setTimeout(() => {
+          viewBtn.disabled = false;
+        }, 50);
+      });
+    </script>
+  </body>
+</html>

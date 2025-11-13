@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Cast Geomancy • AstroRealm</title>
+    <meta
+      name="description"
+      content="Tap each of the 4 lines to add dots. Odd = •, Even = ••. Press OK to save a figure. After 4 figures, go to your full chart automatically."
+    />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+    <style>
+      .wrap {
+        max-width: 940px;
+        margin: 0 auto;
+      }
+      .hint {
+        color: var(--muted);
+      }
+      .panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .line-box {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 12px;
+        margin: 10px 0;
+        cursor: pointer;
+        transition: transform 0.05s;
+      }
+      .line-box:active {
+        transform: translateY(1px);
+      }
+      .dots {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: center;
+        min-height: 36px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      }
+      .bar {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        padding: 0.55rem 0.9rem;
+        border-radius: 0.6rem;
+        cursor: pointer;
+      }
+      /* Gold OK button */
+      .btn--pri {
+        background: linear-gradient(145deg, #d4af37, #b58e25);
+        color: #0a0a0a;
+        border-color: #d4af37;
+        font-weight: 700;
+        box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        transition: all 0.2s ease-in-out;
+      }
+      .btn--pri:hover {
+        background: linear-gradient(145deg, #e3c15a, #cfa83a);
+        box-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
+        transform: translateY(-1px);
+      }
+      .btn[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: none;
+      }
+      .input,
+      .select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+      .grid2 {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+      }
+      @media (max-width: 700px) {
+        .grid2 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+    </style>
+  </head>
+  <body class="sky-static">
+    <div class="container wrap">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" /><span>AstroRealm</span>
+        </a>
+        <nav class="nav">
+          <a href="./topics.html">Topics</a>
+
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <h1 class="mt-2">Cast Geomancy</h1>
+      <p class="hint">
+        <strong>Click each of the 4 lines</strong> to add dots. <strong>Odd = •</strong>,
+        <strong>Even = ••</strong>. Press <em>OK</em> to save a figure. After you save
+        <strong>4 figures</strong>, you will go to your full chart automatically.
+      </p>
+
+      <div class="panel mt-1">
+        <label class="hint" for="q">Your question</label>
+        <input
+          id="q"
+          class="input"
+          type="text"
+          placeholder="Enter your question…"
+          style="margin-top: 0.4rem"
+        />
+        <div class="grid2" style="margin-top: 0.6rem">
+          <div>
+            <label class="hint" for="lang">Language</label>
+            <select id="lang" class="select">
+              <option value="en" selected>English</option>
+              <option value="ha">Hausa</option>
+              <option value="ar">Arabic</option>
+              <option value="fr">French</option>
+              <option value="es">Spanish</option>
+              <option value="hi">Hindi</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: flex-end; justify-content: flex-end">
+            <span class="hint"><b id="prog">0</b>/4 figures</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lines -->
+      <div id="lines" class="mt-2" role="group" aria-label="Tap lines to add dots">
+        <div class="line-box" data-idx="0" tabindex="0"><div id="dots-0" class="dots"></div></div>
+        <div class="line-box" data-idx="1" tabindex="0"><div id="dots-1" class="dots"></div></div>
+        <div class="line-box" data-idx="2" tabindex="0"><div id="dots-2" class="dots"></div></div>
+        <div class="line-box" data-idx="3" tabindex="0"><div id="dots-3" class="dots"></div></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="bar mt-2">
+        <button type="button" class="btn btn--pri" id="ok">OK (Save Figure)</button>
+        <button type="button" class="btn" id="reset">Reset Lines</button>
+        <button type="button" class="btn" id="clearAll">Clear All</button>
+      </div>
+
+      <!-- Saved preview -->
+      <p class="hint mt-1">Saved figures appear below with their tokens.</p>
+      <div id="saved" class="grid2 mt-1" aria-live="polite"></div>
+
+      <footer class="footer mt-3">
+        © 2025 AstroRealm · <a href="./terms.html">Terms</a> · <a href="./privacy.html">Privacy</a>
+      </footer>
+    </div>
+
+    <script>
+      // ---- State ----
+      const taps = [0, 0, 0, 0];
+      const mothers = [];
+      const linesEl = document.getElementById('lines');
+      const savedEl = document.getElementById('saved');
+      const progEl = document.getElementById('prog');
+      const okBtn = document.getElementById('ok');
+      const resetBtn = document.getElementById('reset');
+      const clearBtn = document.getElementById('clearAll');
+      const qEl = document.getElementById('q');
+      const langEl = document.getElementById('lang');
+
+      function renderDots(idx) {
+        const box = document.getElementById('dots-' + idx);
+        box.innerHTML = '';
+        for (let i = 0; i < taps[idx]; i++) {
+          const d = document.createElement('div');
+          d.className = 'dot';
+          box.appendChild(d);
+        }
+      }
+      function updateOk() {
+        const ready = taps.every((n) => n > 0);
+        okBtn.disabled = !ready || mothers.length >= 4;
+      }
+      function resetLines() {
+        taps.fill(0);
+        for (let i = 0; i < 4; i++) renderDots(i);
+        updateOk();
+      }
+      const parityToDot = (n) => (n % 2 === 0 ? 2 : 1);
+      const token = (fig) => fig.join('');
+
+      linesEl.addEventListener('click', (e) => {
+        const host = e.target.closest('.line-box');
+        if (!host) return;
+        const idx = +host.dataset.idx;
+        if (Number.isNaN(idx)) return;
+        if (taps[idx] < 100) taps[idx]++;
+        renderDots(idx);
+        updateOk();
+      });
+
+      function figureCard(fig, idx) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const h = document.createElement('h3');
+        h.textContent = `Figure ${idx + 1}`;
+        h.style.margin = '0 0 8px';
+        const t = document.createElement('div');
+        t.className = 'hint';
+        t.textContent = `Token: ${token(fig)}`;
+        card.appendChild(h);
+        card.appendChild(t);
+        fig.forEach((v) => {
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;justify-content:center;gap:6px;margin:6px 0;';
+          if (v === 1) {
+            const d = document.createElement('div');
+            d.className = 'dot';
+            row.appendChild(d);
+          } else {
+            const d1 = document.createElement('div');
+            d1.className = 'dot';
+            const d2 = document.createElement('div');
+            d2.className = 'dot';
+            row.appendChild(d1);
+            row.appendChild(d2);
+          }
+          card.appendChild(row);
+        });
+        return card;
+      }
+
+      let navigating = false;
+      okBtn.addEventListener('click', () => {
+        if (mothers.length >= 4 || okBtn.disabled) return;
+        if (!taps.every((n) => n > 0)) {
+          alert('Tap each of the 4 lines at least once.');
+          return;
+        }
+        const fig = taps.map(parityToDot);
+        mothers.push(fig);
+        savedEl.appendChild(figureCard(fig, mothers.length - 1));
+        progEl.textContent = String(mothers.length);
+        resetLines();
+        if (mothers.length === 4 && !navigating) {
+          navigating = true;
+          const payload = { mothers, question: qEl.value.trim(), language: langEl.value || 'en' };
+          try {
+            localStorage.setItem('astro_cast_payload', JSON.stringify(payload));
+          } catch {}
+          window.location.href = './full_cast.html';
+          setTimeout(() => {
+            if (location.pathname.endsWith('casting.html')) location.href = './full_cast.html';
+          }, 400);
+        }
+      });
+
+      resetBtn.addEventListener('click', resetLines);
+      clearBtn.addEventListener('click', () => {
+        resetLines();
+        mothers.length = 0;
+        savedEl.innerHTML = '';
+        progEl.textContent = '0';
+      });
+
+      resetLines();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Zodiac Reading ✨ • AstroRealm</title>
+    <meta
+      name="description"
+      content="Enter your name, date of birth (or mother’s first name), and ask your question for a zodiac reading."
+    />
+
+    <!-- From /pages/* go one level up to /assets -->
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+
+    <style>
+      .wrap {
+        max-width: 940px;
+        margin: 0 auto;
+      }
+      .card {
+        border: 1px solid rgba(255, 215, 0, 0.25);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 16px;
+      }
+      .field {
+        margin: 12px 0;
+      }
+      .field label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #ffd700;
+      }
+      .field input[type='text'],
+      .field input[type='date'],
+      .field select,
+      .field textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: #000; /* force black field bg */
+        color: #fff;
+        outline: none;
+      }
+      /* Force black dropdown list as much as browsers allow */
+      select {
+        background-color: #000;
+        color: #fff;
+      }
+      select option {
+        background-color: #000;
+        color: #fff;
+      }
+      select::-ms-expand {
+        background-color: #000;
+        color: #fff;
+      }
+
+      .hint {
+        color: var(--muted);
+      }
+      .row {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+      }
+      @media (max-width: 760px) {
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 215, 0, 0.35);
+        background: rgba(255, 215, 0, 0.06);
+        color: #ffd700;
+        font-weight: 600;
+      }
+
+      .unlock-btn {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #ffe6a3, #d4af37 60%, #7a5a12);
+        color: #1a1200;
+        font-weight: 800;
+        text-decoration: none;
+        border: none;
+        box-shadow: 0 8px 18px rgba(212, 175, 55, 0.25);
+        transition: transform 0.15s ease;
+      }
+      .unlock-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .err {
+        color: #ffb3b3;
+        font-size: 0.95rem;
+        margin-top: 8px;
+      }
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+    </style>
+  </head>
+
+  <body class="sky-static">
+    <div class="container wrap">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+        <nav class="nav">
+          <a href="./topics.html">Topics</a>
+
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <h1 class="mt-2">Zodiac Reading ✨</h1>
+      <p class="hint">
+        Enter your <b>name</b> and date of birth to auto-detect your sign. If DOB is unknown,
+        provide your mother’s first name. Ask your question in your own words and choose your answer
+        language.
+      </p>
+
+      <section class="card mt-2" aria-label="Zodiac Input Form">
+        <!-- Status / preview -->
+        <div class="field">
+          <span class="pill" id="signPreview" aria-live="polite">Sign: —</span>
+        </div>
+
+        <!-- Name -->
+        <div class="field">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" placeholder="e.g., Ibrahim" />
+          <small class="hint">We’ll personalize the reading with your name.</small>
+        </div>
+
+        <!-- DOB & fallback -->
+        <div class="row">
+          <div class="field">
+            <label for="dob">Date of Birth (if known)</label>
+            <input type="date" id="dob" />
+            <small class="hint">We’ll use this to detect your zodiac sign automatically.</small>
+          </div>
+          <div class="field">
+            <label for="mother">Mother’s First Name (if DOB unknown)</label>
+            <input type="text" id="mother" placeholder="e.g., Maryam" />
+            <small class="hint">Only needed if DOB is not provided.</small>
+          </div>
+        </div>
+
+        <!-- Question (free text) + Language -->
+        <div class="row">
+          <div class="field">
+            <label for="question">Your Question (write in full)</label>
+            <textarea
+              id="question"
+              placeholder="e.g., What should I focus on this week to improve my career and relationships?"
+            ></textarea>
+          </div>
+          <div class="field">
+            <label for="lang">Answer Language</label>
+            <select id="lang">
+              <option value="">— Select language —</option>
+              <option value="en">English</option>
+              <option value="ha">Hausa</option>
+              <option value="ar">Arabic</option>
+              <option value="fr">French</option>
+              <option value="es">Spanish</option>
+              <option value="hi">Hindi</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Errors -->
+        <div id="err" class="err" aria-live="polite"></div>
+
+        <!-- Unlock flow -->
+        <div class="field">
+          <a href="https://www.viral782.com/unlock/jyDakSOq" id="unlock" class="unlock-btn">
+            Unlock Your Reading
+          </a>
+          <small class="hint"
+            >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</small
+          >
+        </div>
+      </section>
+
+      <footer class="footer mt-3">
+        © 2025 AstroRealm · <a href="./terms.html">Terms</a> · <a href="./privacy.html">Privacy</a>
+      </footer>
+    </div>
+
+    <script>
+      // ===== Config =====
+      const LOCKER_URL = 'https://www.viral782.com/unlock/jyDakSOq'; // Viral782 locker
+      const ANSWER_PAGE = './reading.html'; // where you'll render the final reading
+
+      // ===== Helpers =====
+      const SIGNS = [
+        { key: 'Aries', glyph: '♈', start: [3, 21], end: [4, 19] },
+        { key: 'Taurus', glyph: '♉', start: [4, 20], end: [5, 20] },
+        { key: 'Gemini', glyph: '♊', start: [5, 21], end: [6, 20] },
+        { key: 'Cancer', glyph: '♋', start: [6, 21], end: [7, 22] },
+        { key: 'Leo', glyph: '♌', start: [7, 23], end: [8, 22] },
+        { key: 'Virgo', glyph: '♍', start: [8, 23], end: [9, 22] },
+        { key: 'Libra', glyph: '♎', start: [9, 23], end: [10, 22] },
+        { key: 'Scorpio', glyph: '♏', start: [10, 23], end: [11, 21] },
+        { key: 'Sagittarius', glyph: '♐', start: [11, 22], end: [12, 21] },
+        { key: 'Capricorn', glyph: '♑', start: [12, 22], end: [1, 19] },
+        { key: 'Aquarius', glyph: '♒', start: [1, 20], end: [2, 18] },
+        { key: 'Pisces', glyph: '♓', start: [2, 19], end: [3, 20] },
+      ];
+
+      function inRange(m, d, sM, sD, eM, eD) {
+        if (sM < eM || (sM === eM && sD <= eD)) {
+          return (m > sM || (m === sM && d >= sD)) && (m < eM || (m === eM && d <= eD));
+        } else {
+          return m > sM || (m === sM && d >= sD) || m < eM || (m === eM && d <= eD);
+        }
+      }
+
+      function signFromDate(str) {
+        if (!str) return null;
+        const dt = new Date(str + 'T00:00:00');
+        if (isNaN(dt.getTime())) return null;
+        const m = dt.getMonth() + 1,
+          d = dt.getDate();
+        for (const s of SIGNS) {
+          const [sM, sD] = s.start,
+            [eM, eD] = s.end;
+          if (inRange(m, d, sM, sD, eM, eD)) return s;
+        }
+        return null;
+      }
+
+      function setPreview(text) {
+        document.getElementById('signPreview').textContent = 'Sign: ' + (text || '—');
+      }
+
+      function err(msg) {
+        document.getElementById('err').textContent = msg || '';
+      }
+
+      function buildPayload() {
+        const name = document.getElementById('name').value.trim();
+        const dob = document.getElementById('dob').value.trim();
+        const mother = document.getElementById('mother').value.trim();
+        const question = document.getElementById('question').value.trim();
+        const lang = document.getElementById('lang').value.trim();
+
+        // Require: name, (DOB or mother), question, language
+        if (!name) {
+          err('Please enter your name.');
+          return null;
+        }
+        if (!dob && !mother) {
+          err('Provide your Date of Birth or your mother’s first name.');
+          return null;
+        }
+        if (!question) {
+          err('Please write your question.');
+          return null;
+        }
+        if (!lang) {
+          err('Please select your answer language.');
+          return null;
+        }
+
+        let sign = null,
+          glyph = '';
+        if (dob) {
+          const s = signFromDate(dob);
+          if (s) {
+            sign = s.key;
+            glyph = s.glyph;
+          }
+        }
+
+        return {
+          name,
+          dob: dob || null,
+          mother: dob ? null : mother || null,
+          sign,
+          glyph,
+          question,
+          lang,
+          topic: 'zodiac',
+          ts: Date.now(),
+        };
+      }
+
+      function makeLockerLink(payload) {
+        const query = encodeURIComponent(btoa(JSON.stringify(payload)));
+        const redirect = encodeURIComponent(ANSWER_PAGE + '?p=' + query);
+        const hasQ = LOCKER_URL.includes('?');
+        return LOCKER_URL + (hasQ ? '&' : '?') + 'redirect=' + redirect;
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const dobEl = document.getElementById('dob');
+        dobEl.addEventListener('input', () => {
+          const s = signFromDate(dobEl.value);
+          setPreview(s ? `${s.key} ${s.glyph}` : '—');
+        });
+
+        document.getElementById('unlock').addEventListener('click', (e) => {
+          e.preventDefault();
+          err('');
+          const payload = buildPayload();
+          if (!payload) return;
+          window.location.href = makeLockerLink(payload);
+        });
+      });
+    </script>
+  </body>
+</html>

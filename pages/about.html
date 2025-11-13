@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>About 🌟 • AstroRealm</title>
+    <meta
+      name="description"
+      content="About AstroRealm – a night-sky themed portal for zodiac, palmistry, geomancy, horary and weekly guidance."
+    />
+
+    <!-- From /pages/* we go one level up to /assets -->
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+
+    <style>
+      .about-wrap {
+        max-width: 880px;
+        margin: 0 auto;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.15rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 215, 0, 0.5);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #ffd700;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+      }
+
+      .about-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr);
+        gap: 1.4rem;
+      }
+      @media (max-width: 860px) {
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card-soft {
+        border-radius: 18px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        background: radial-gradient(circle at top, rgba(255, 215, 0, 0.12), transparent 65%);
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7);
+        padding: 1.1rem 1.2rem;
+      }
+
+      .about-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+        display: grid;
+        gap: 0.45rem;
+        font-size: 0.95rem;
+      }
+      .about-list li {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .about-bullet {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 215, 0, 0.7);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        color: #ffd700;
+        flex-shrink: 0;
+      }
+
+      .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.9rem;
+      }
+      .value-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(255, 215, 0, 0.45);
+        padding: 0.45rem 0.8rem;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+      }
+      .value-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(255, 215, 0, 0.9);
+      }
+
+      .center {
+        text-align: center;
+      }
+      .mt-1 {
+        margin-top: 0.6rem;
+      }
+      .mt-2 {
+        margin-top: 1rem;
+      }
+      .mt-3 {
+        margin-top: 1.6rem;
+      }
+    </style>
+  </head>
+  <body class="sky-static">
+    <div class="container about-wrap">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+        <nav class="nav">
+          <a href="./topics.html">Topics</a>
+          <a href="./about.html" aria-current="page">About</a>
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <div class="mt-2">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          <span>Night-sky astrology hub</span>
+        </div>
+        <h1 class="mt-1">About AstroRealm 🌟</h1>
+        <p class="hint">
+          AstroRealm is a compact portal for Zodiac, Palmistry, Geomancy (Ramli), Horary, Love,
+          Money, Career and Weekly Guidance — designed to load fast and feel calm on mobile.
+        </p>
+      </div>
+
+      <section class="about-grid mt-2">
+        <article class="card">
+          <h2>Our purpose</h2>
+          <p class="mt-1">
+            AstroRealm brings several traditional systems into one night-sky themed experience.
+            Instead of many scattered pages, you tap a topic, share a few details, and unlock a
+            focused reading in your preferred language.
+          </p>
+          <p class="mt-1">
+            To keep access affordable, some readings unlock after completing a small number of
+            partner tasks. You stay on a simple, consistent flow for all topics.
+          </p>
+
+          <h3 class="mt-2">How it works</h3>
+          <ul class="about-list">
+            <li>
+              <span class="about-bullet">1</span>
+              <span
+                >Choose a topic like Love, Money, Career, Destiny, AstroSport, Palmistry, or Weekly
+                Guidance.</span
+              >
+            </li>
+            <li>
+              <span class="about-bullet">2</span>
+              <span
+                >Fill in simple details (name, dates, place, match info, or palm photo) and select
+                your language.</span
+              >
+            </li>
+            <li>
+              <span class="about-bullet">3</span>
+              <span
+                >Complete a few tasks on the offerwall, then open your unlocked reading page.</span
+              >
+            </li>
+          </ul>
+        </article>
+
+        <aside class="card-soft">
+          <h2>Our approach</h2>
+          <p class="mt-1">
+            The focus is on calm, reflective guidance. Readings are written in a gentle style,
+            combining astrological language with clear, grounded wording you can think about at your
+            own pace.
+          </p>
+          <div class="values-grid">
+            <div class="value-pill">
+              <span class="value-dot"></span>
+              <span>Mobile-first design</span>
+            </div>
+            <div class="value-pill">
+              <span class="value-dot"></span>
+              <span>Fast loading</span>
+            </div>
+            <div class="value-pill">
+              <span class="value-dot"></span>
+              <span>Multiple languages</span>
+            </div>
+            <div class="value-pill">
+              <span class="value-dot"></span>
+              <span>No gambling focus</span>
+            </div>
+            <div class="value-pill">
+              <span class="value-dot"></span>
+              <span>Clear topic pages</span>
+            </div>
+          </div>
+          <p class="mt-1" style="font-size: 0.9rem; color: var(--muted)">
+            Compliance: No medical, legal, gambling, or guaranteed financial outcomes. Results are
+            not a substitute for professional advice.
+          </p>
+        </aside>
+      </section>
+
+      <section class="mt-3">
+        <h2>Popular starting points</h2>
+        <p class="hint">
+          You can begin with any topic and still use the same unlock flow. Many people start with:
+        </p>
+
+        <div class="grid mt-2" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+          <a class="card" href="./destiny.html">
+            <h3>What is happening in my life now?</h3>
+            <p>Destiny-style overview of your current path.</p>
+          </a>
+          <a class="card" href="./weekly.html">
+            <h3>What is my destiny this week?</h3>
+            <p>7–10 day focus and timing windows.</p>
+          </a>
+          <a class="card" href="./money.html">
+            <h3>Should I avoid danger this month?</h3>
+            <p>Money & risk awareness using horary-style timing.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="mt-3 center">
+        <!-- Replace with your CPAlead locker URL -->
+        <a href="YOUR_CPALEAD_LOCKER_URL" class="unlock-btn">Go to Unlock Page</a>
+        <p class="mt-1 hint">
+          Some readings become available after completing tasks from our partners. There are no
+          promises of specific results.
+        </p>
+      </section>
+
+      <footer class="footer mt-3">
+        © 2025 AstroRealm · <a href="./terms.html">Terms</a> ·
+        <a href="./privacy.html">Privacy</a>
+      </footer>
+    </div>
+  </body>
+</html>

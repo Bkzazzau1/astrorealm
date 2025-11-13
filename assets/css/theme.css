@@ -1,0 +1,211 @@
+:root {
+  --bg: #000; /* Deep space */
+  --gold: #d4af37; /* Accents */
+  --card: #0b0b0f; /* Cards */
+  --soft: #c9c9d1; /* Muted text */
+  --maxw: 1000px;
+  --ring: rgba(212, 175, 55, 0.35);
+}
+
+/* ========== Reset & base ========== */
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+html:focus-within {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0 !important; /* kill any inherited margins */
+  padding: 0 !important; /* kill any theme padding */
+  color: #fff;
+  background: var(--bg);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    'Liberation Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Prevent first-child margin-collapsing creating a top gap */
+.container > :first-child {
+  margin-top: 0 !important;
+}
+
+/* ========== STATIC NIGHT SKY (zero JS) ========== */
+/* Add class="sky-static" on <body> to use this background */
+body.sky-static {
+  background: radial-gradient(120% 80% at 50% -20%, #0a0a1a 0%, #000 60%), var(--bg);
+  color: #f8e7c1;
+}
+body.sky-static::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>\
+  <defs><radialGradient id='g' cx='50%' cy='50%' r='50%'>\
+    <stop offset='0' stop-color='white' stop-opacity='.9'/>\
+    <stop offset='1' stop-color='white' stop-opacity='0'/>\
+  </radialGradient></defs>\
+  <circle cx='18' cy='24' r='1' fill='white'/>\
+  <circle cx='82' cy='37' r='1' fill='white'/>\
+  <circle cx='142' cy='18' r='1' fill='white'/>\
+  <circle cx='120' cy='88' r='1' fill='white'/>\
+  <circle cx='48' cy='102' r='1' fill='white'/>\
+  <circle cx='94' cy='146' r='1' fill='white'/>\
+  <circle cx='24' cy='130' r='1' fill='white'/>\
+  <circle cx='150' cy='120' r='1' fill='white'/>\
+  <circle cx='64' cy='42' r='2' fill='url(%23g)'/>\
+  <circle cx='16' cy='118' r='2' fill='url(%23g)'/>\
+  <circle cx='128' cy='72' r='2' fill='url(%23g)'/>\
+</svg>");
+  background-repeat: repeat;
+  background-size: 160px 160px;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: -1; /* sits behind content */
+}
+body.sky-static::after {
+  content: '';
+  position: fixed;
+  inset: auto -20% 60% auto;
+  width: 40vh;
+  height: 40vh;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, rgba(255, 215, 0, 0.14), transparent 60%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Safety: hide any legacy animation layers if they still exist */
+body.sky-static #starfield,
+body.sky-static .planets {
+  display: none !important;
+}
+
+/* ========== Layout ========== */
+.container {
+  position: relative;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 12px 16px 80px; /* small top padding so no collapse */
+  z-index: 1; /* above background layers */
+}
+
+/* ========== Header / Nav ========== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  margin-top: 0 !important; /* ensure no top bump */
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  border-radius: 18px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+}
+.logo img {
+  height: 28px;
+  width: auto;
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.35));
+}
+.logo span {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.nav a {
+  color: var(--soft);
+  text-decoration: none;
+  margin-left: 16px;
+  font-size: 0.95rem;
+}
+.nav a:hover {
+  color: #fff;
+}
+
+/* Intro hint */
+.hint {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #c8c8c8;
+  opacity: 0.85;
+}
+
+/* ========== Grid & Cards ========== */
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  margin-top: 18px;
+}
+.card {
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  background: linear-gradient(180deg, rgba(22, 22, 28, 0.65), rgba(12, 12, 16, 0.65));
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ring);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--ring) inset;
+}
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  color: #fff;
+}
+.card p {
+  margin: 0;
+  color: #cfcfe6;
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+/* ========== CTA ========== */
+.unlock-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #cfb053, #a67c00);
+  color: #140f02;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
+}
+.unlock-btn:active {
+  transform: translateY(1px);
+}
+
+/* ========== Footer ========== */
+.footer {
+  margin-top: 28px;
+  color: #9a9ab3;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+/* ========== Reduced motion (placeholder) ========== */
+@media (prefers-reduced-motion: reduce) {
+  /* no animations present */
+}
