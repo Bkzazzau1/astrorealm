@@ -2,6 +2,7 @@
 // Serverless function that talks to OpenAI and returns a long astrology-style reading
 
 const OpenAI = require('openai');
+
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -15,18 +16,24 @@ exports.handler = async (event) => {
   }
 
   try {
-    const body = JSON.parse(event.body || '{}');
+    const rawBody = JSON.parse(event.body || '{}');
+    const body = rawBody && typeof rawBody === 'object' ? rawBody : {};
 
-    const {
-      topic = 'destiny',
-      question = 'What is happening in my life now?',
-      name = '',
-      dob = '',
-      mother = '',
-      lang = 'en',
-      religion = '',
-      source = '',
-    } = body;
+    // Accept multiple possible keys & only use defaults if NOTHING was sent
+    const topic =
+      (body.topic || body.type || '').toString().trim().toLowerCase() || 'destiny';
+
+    const question =
+      (body.question || body.q || '').toString().trim() ||
+      'What is happening in my life now?';
+
+    const name = (body.name || '').toString().trim();
+    const dob = (body.dob || body.date_of_birth || '').toString().trim();
+    const mother = (body.mother || body.mother_name || '').toString().trim();
+    const lang =
+      (body.lang || body.language || 'en').toString().trim().toLowerCase() || 'en';
+    const religion = (body.religion || '').toString().trim();
+    const source = (body.source || body.from || '').toString().trim();
 
     // 🧠 Build a dynamic language rule so user can pick ANY language
     const langCode = String(lang || 'en').toLowerCase();
@@ -122,7 +129,6 @@ Very important:
       completion.choices?.[0]?.message?.content?.trim() ||
       'We could not generate a reading at this time.';
 
-    // Optional: you can customise title based on topic
     const titleMap = {
       zodiac: 'Your Zodiac Message',
       palmistry: 'Your Palm Line Message',
@@ -135,7 +141,7 @@ Very important:
       astrosport: 'Your AstroSport Focus',
     };
 
-    const title = titleMap[topic.toLowerCase()] || 'Your Cosmic Message';
+    const title = titleMap[topic] || 'Your Cosmic Message';
 
     return {
       statusCode: 200,
