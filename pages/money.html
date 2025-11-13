@@ -225,7 +225,7 @@
 
         <div class="unlock-wrap mt-2">
           <a
-            href="https://www.viral782.com/unlock/jyDakSOq"
+            href="./unlock.html?topic=money"
             id="unlockBtn"
             class="unlock-btn"
             role="button"
@@ -243,7 +243,7 @@
       </footer>
     </div>
 
-    <!-- FIXED SCRIPT (NO ERRORS) -->
+    <!-- FIXED SCRIPT -->
     <script>
       (function () {
         const presetGrid = document.getElementById('presetGrid');
@@ -251,7 +251,7 @@
         const unlockBtn = document.getElementById('unlockBtn');
         const errorEl = document.getElementById('formError');
 
-        // preset → fill question (FIXED)
+        // preset → fill question
         presetGrid?.addEventListener('click', (e) => {
           const btn = e.target.closest('[data-question]');
           if (!btn) return;
@@ -316,6 +316,7 @@
           try {
             localStorage.setItem('astroReading', JSON.stringify(payload));
             localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+            localStorage.removeItem('astrogate_tasks_done'); // RESET task count
           } catch (err) {
             console.warn('localStorage failed', err);
           }
