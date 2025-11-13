@@ -141,7 +141,6 @@
         </a>
         <nav class="nav">
           <a href="./topics.html">Topics</a>
-
           <a href="./contact.html">Contact</a>
         </nav>
       </header>
@@ -370,9 +369,9 @@
       <div class="error" id="formError"></div>
 
       <div class="unlock-wrap mt-2">
-        <!-- Live locker URL here -->
+        <!-- Now we go to 3-task unlock page -->
         <a
-          href="https://www.viral782.com/unlock/jyDakSOq"
+          href="./unlock.html?topic=career"
           id="unlockBtn"
           class="unlock-btn"
           role="button"
@@ -476,7 +475,8 @@
 
             try {
               localStorage.setItem('astroReading', JSON.stringify(payload));
-              localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+              // reset unlock counter for new session
+              localStorage.removeItem('astrogate_tasks_done');
             } catch (err) {
               console.warn('localStorage failed', err);
             }
@@ -528,7 +528,8 @@
 
             try {
               localStorage.setItem('astroReading', JSON.stringify(payload));
-              localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+              // reset unlock counter for new session
+              localStorage.removeItem('astrogate_tasks_done');
             } catch (err) {
               console.warn('localStorage failed', err);
             }
