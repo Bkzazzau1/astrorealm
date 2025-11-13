@@ -9,7 +9,6 @@
       content="Your unlocked astrology reading on AstroRealm – destiny, love, money, palmistry, geomancy and more."
     />
 
-    <!-- CSS (one level up from /pages) -->
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
 
@@ -46,11 +45,6 @@
         margin-bottom: 0.9rem;
       }
 
-      .meta strong {
-        color: var(--accent);
-        font-weight: 500;
-      }
-
       .pill-row {
         display: flex;
         flex-wrap: wrap;
@@ -65,11 +59,6 @@
         border: 1px solid rgba(212, 175, 55, 0.32);
         color: #f8f3e3;
         background: radial-gradient(circle at 0 0, rgba(212, 175, 55, 0.22), transparent);
-        backdrop-filter: blur(8px);
-      }
-
-      .pill span {
-        opacity: 0.76;
       }
 
       .reading-body {
@@ -78,32 +67,20 @@
         white-space: pre-wrap;
       }
 
-      .reading-body p + p {
-        margin-top: 0.9rem;
-      }
-
       .reading-body.skeleton {
-        position: relative;
-        overflow: hidden;
         min-height: 96px;
-        border-radius: 8px;
-        background: linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0.04),
-          rgba(255, 255, 255, 0.08),
-          rgba(255, 255, 255, 0.04)
+        animation: shimmer 1.4s infinite linear;
+        background: linear-gradient(90deg,
+          rgba(255,255,255,0.04),
+          rgba(255,255,255,0.08),
+          rgba(255,255,255,0.04)
         );
         background-size: 200% 100%;
-        animation: shimmer 1.4s infinite linear;
       }
 
       @keyframes shimmer {
-        0% {
-          background-position: -200% 0;
-        }
-        100% {
-          background-position: 200% 0;
-        }
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
       }
 
       .error-box {
@@ -123,59 +100,36 @@
         gap: 10px;
       }
 
-      .btn-main,
-      .btn-ghost {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.65rem 1.1rem;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        text-decoration: none;
-        cursor: pointer;
-      }
-
       .btn-main {
-        border: none;
+        padding: 0.7rem 1.3rem;
+        border-radius: 999px;
         background: linear-gradient(135deg, #f4d27a, #d4af37);
+        border: none;
         color: #1a1028;
         font-weight: 600;
-      }
-
-      .btn-main span {
-        margin-left: 4px;
+        text-decoration: none;
       }
 
       .btn-ghost {
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: #f7f3e9;
-        background: rgba(8, 8, 16, 0.8);
-      }
-
-      .btn-ghost span {
-        margin-left: 4px;
-        opacity: 0.8;
+        padding: 0.7rem 1.2rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(8,8,16,0.8);
+        color: #fff;
+        text-decoration: none;
       }
 
       .footer-note {
-        margin-top: 1rem;
         font-size: 0.8rem;
+        margin-top: 1rem;
         color: var(--muted);
-      }
-
-      @media (max-width: 600px) {
-        .card {
-          padding: 16px 14px;
-        }
-        .reading-title {
-          font-size: 1.2rem;
-        }
       }
     </style>
   </head>
 
   <body class="sky-static">
     <div class="container">
+
       <header class="header">
         <a class="logo" href="../index.html">
           <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
@@ -189,26 +143,23 @@
 
       <main class="wrap">
         <section class="card">
+
           <p class="eyebrow">Unlocked reading</p>
           <h1 id="reading-title" class="reading-title">Your cosmic message</h1>
-          <p id="reading-meta" class="meta">Question: <strong>…</strong></p>
+          <p id="reading-meta" class="meta"></p>
 
           <div id="pill-row" class="pill-row"></div>
 
           <div id="reading-output" class="reading-body skeleton"></div>
-
           <div id="reading-error" class="error-box"></div>
 
           <div class="actions">
-            <a id="ask-again-link" href="./topics.html" class="btn-main">
-              Ask another question <span>⟳</span>
-            </a>
-            <a href="../index.html" class="btn-ghost"> Back to home <span>🏠</span> </a>
+            <a id="ask-again-link" href="./topics.html" class="btn-main">Ask another question</a>
+            <a href="../index.html" class="btn-ghost">Back to home</a>
           </div>
 
           <p class="footer-note">
-            Readings are for guidance and reflection only. They do not guarantee money, health, or
-            gambling wins.
+            Readings are for guidance and reflection only. No medical, legal, gambling or guaranteed financial outcomes.
           </p>
         </section>
       </main>
@@ -216,85 +167,71 @@
 
     <script>
       (function () {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search);
 
-        // Basic data from query string
-        const topic = (params.get('topic') || 'destiny').toLowerCase();
-        const question =
-          params.get('q') || params.get('question') || 'What is happening in my life now?';
+        const topic = (params.get("topic") || "destiny").toLowerCase();
+        const question = params.get("question") || params.get("q") || "";
+        const name = params.get("name") || "";
+        const dob = params.get("dob") || "";
+        const mother = params.get("mother") || "";
+        const lang = params.get("lang") || "en";
+        const religion = params.get("religion") || "";
+        const from = params.get("from") || topic;
 
-        const name = params.get('name') || '';
-        const dob = params.get('dob') || params.get('date_of_birth') || '';
-        const mother = params.get('mother') || params.get('mother_name') || '';
-        const lang = (params.get('lang') || 'en').toLowerCase();
-        const religion = params.get('religion') || '';
-        const from = params.get('from') || topic;
+        const titleEl = document.getElementById("reading-title");
+        const metaEl = document.getElementById("reading-meta");
+        const pillRow = document.getElementById("pill-row");
+        const outEl = document.getElementById("reading-output");
+        const errEl = document.getElementById("reading-error");
+        const askLink = document.getElementById("ask-again-link");
 
-        const titleEl = document.getElementById('reading-title');
-        const metaEl = document.getElementById('reading-meta');
-        const pillRow = document.getElementById('pill-row');
-        const outEl = document.getElementById('reading-output');
-        const errEl = document.getElementById('reading-error');
-        const askLink = document.getElementById('ask-again-link');
-
-        // Set title based on topic
+        // Friendly names
         const topicLabelMap = {
-          zodiac: 'Zodiac',
-          palmistry: 'Palmistry',
-          geomancy: 'Geomancy',
-          destiny: 'Destiny',
-          weekly: 'Weekly Guidance',
-          love: 'Love',
-          money: 'Money',
-          career: 'Career',
-          astrosport: 'Astro Sport',
+          zodiac: "Zodiac",
+          palmistry: "Palmistry",
+          geomancy: "Geomancy",
+          destiny: "Destiny",
+          weekly: "Weekly Guidance",
+          love: "Love",
+          money: "Money",
+          career: "Career",
+          astrosport: "Astro Sport",
         };
 
-        const niceTopic = topicLabelMap[topic] || topic.charAt(0).toUpperCase() + topic.slice(1);
+        const niceTopic = topicLabelMap[topic] || topic;
+
+        // Set title
         titleEl.textContent = `Your ${niceTopic} Reading`;
 
-        // Meta text
-        metaEl.innerHTML =
-          'Question: <strong>' +
-          escapeHtml(question) +
-          '</strong>' +
-          (name ? ' &nbsp; • &nbsp; Name: <strong>' + escapeHtml(name) + '</strong>' : '');
+        // Show meta
+        metaEl.innerHTML = `Question: <strong>${escapeHtml(question)}</strong>` +
+          (name ? ` • Name: <strong>${escapeHtml(name)}</strong>` : "");
 
         // Pills
-        pillRow.innerHTML = '';
         addPill(`Topic: ${niceTopic}`);
-        addPill('Language: ' + lang.toUpperCase());
+        addPill(`Language: ${lang.toUpperCase()}`);
+        if (dob) addPill(`DOB: ${dob}`);
+        if (mother) addPill(`Mother: ${mother}`);
+        if (religion) addPill(`Religion: ${religion}`);
 
-        if (dob) addPill('DOB: ' + dob);
-        if (mother) addPill("Mother's Name: " + mother);
-        if (religion) addPill('Religion: ' + religion);
-        if (from && from !== topic) addPill('From: ' + from);
+        // Back link to correct page
+        const map = {
+          zodiac: './zodiac.html',
+          palmistry: './palmistry.html',
+          geomancy: './geomancy.html',
+          weekly: './weekly.html',
+          love: './love.html',
+          money: './money.html',
+          career: './career.html',
+          destiny: './destiny.html',
+          astrosport: './astrosport.html',
+        };
+        askLink.href = map[from] || './topics.html';
 
-        // Smart "go back" link
-        if (from) {
-          const target = from.toLowerCase();
-          const map = {
-            zodiac: './zodiac.html',
-            palmistry: './palmistry.html',
-            geomancy: './geomancy.html',
-            weekly: './weekly.html',
-            love: './love.html',
-            money: './money.html',
-            career: './career.html',
-            destiny: './destiny.html',
-            astrosport: './astrosport.html',
-          };
-          if (map[target]) {
-            askLink.href = map[target];
-          }
-        }
-
-        // ✅ Call Netlify serverless function at /api/reading
+        // FETCH OPENAI FROM NETLIFY
         fetch('/api/reading', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             topic,
             question,
@@ -303,166 +240,47 @@
             mother,
             lang,
             religion,
-            source: from,
-          }),
+            source: from
+          })
         })
-          .then(async (res) => {
-            if (!res.ok) {
-              throw new Error('Server returned ' + res.status);
-            }
-            return res.json();
-          })
-          .then((data) => {
-            const text = (data && (data.reading || data.text)) || '';
-            const newTitle = data && data.title;
-            if (newTitle) {
-              titleEl.textContent = newTitle;
-            }
-            if (!text) throw new Error('Empty reading from backend');
-            showReading(text);
-          })
-          .catch((err) => {
-            console.error(err);
-            errEl.style.display = 'block';
-            errEl.textContent =
-              'We could not reach the reading server. Showing a local guidance message instead.';
-            const fallback = buildLocalReading({
-              topic,
-              question,
-              name,
-              dob,
-              mother,
-              lang,
-              religion,
-            });
-            showReading(fallback);
-          });
+        .then(res => res.json())
+        .then(data => {
+          const text = data.reading || data.text || "";
+          if (!text) throw new Error("Empty reading");
+          showReading(text);
+        })
+        .catch(err => {
+          errEl.style.display = "block";
+          errEl.textContent = "Unable to reach reading server. Showing fallback.";
+          showReading(buildFallback());
+        });
 
-        function showReading(text) {
-          outEl.classList.remove('skeleton');
-          outEl.textContent = text;
+        function showReading(t) {
+          outEl.classList.remove("skeleton");
+          outEl.textContent = t;
         }
 
-        function addPill(label) {
-          const pill = document.createElement('div');
-          pill.className = 'pill';
-          pill.textContent = label;
-          pillRow.appendChild(pill);
+        function addPill(txt) {
+          const div = document.createElement("div");
+          div.className = "pill";
+          div.textContent = txt;
+          pillRow.appendChild(div);
         }
 
-        function escapeHtml(str) {
-          return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+        function escapeHtml(s) {
+          return s.replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
         }
 
-        // Same local placeholder generator as before (used only if backend fails)
-        function buildLocalReading(opts) {
-          const { topic, question, name, lang, religion } = opts;
-          const who = name ? name : 'dear seeker';
-          const t = topic.toLowerCase();
+        function buildFallback() {
+          return `Dear ${name || "seeker"},
+          
+Your question shows you're entering a period of transition.  
+Stay calm, avoid rushing decisions, and be open to guidance.  
+Your inner intuition is preparing you for a breakthrough.
 
-          const isHausa = lang === 'ha' || lang === 'hau' || lang === 'hausa';
-
-          if (isHausa) {
-            let base =
-              'Assalamu alaikum ' +
-              who +
-              '.\n\n' +
-              'Tambayarka: "' +
-              question +
-              '" ta nuna cewa kana cikin wani mataki na canji a rayuwarka. ' +
-              'Alamomin taurari suna nuna ka yi natsuwa ka daina gaggawa wajen yanke hukunci.';
-
-            if (t === 'love') {
-              base +=
-                '\n\nA bangaren soyayya, zuciyarka tana bukatar a saurare ta da gaskiya. ' +
-                'Ka bude zuciyarka ga tattaunawa mai tsafta, ka guji boye damuwa a ciki. ' +
-                'Idan kana da abokin aure ko masoyi, lokaci ne na yafe kura-kurai a hankali.';
-            } else if (t === 'money') {
-              base +=
-                '\n\nA bangaren kudi, wannan ba lokaci ba ne na cin amanar kai ko shiga kudin da baka shirya ba. ' +
-                'Ka kula da kananan damar halal da suke zuwa gare ka, musamman ayyukan da suka shafi ilimi da fasaha.';
-            } else if (t === 'career') {
-              base +=
-                '\n\nA fannin aiki, akwai wata sabuwar hanya da za ta bude maka ko dai sabon aiki ko sabon matsayi. ' +
-                'Ka gyara CV / kasuwancin da kake yi, ka fara tunani kan yadda zaka inganta fasaharka.';
-            } else if (t === 'geomancy') {
-              base +=
-                "\n\nLissafin ramli yana nuna maka badaidai ba kai kadai kake tafiya ba – ana taya ka da addu'a daga sama, " +
-                'amma har yanzu dole ka dauki mataki a kasa. Ka guji daukar shawara cikin bacin rai.';
-            }
-
-            if (religion) {
-              base +=
-                '\n\nA matsayinka na ' +
-                religion +
-                ", ka kara daidaita zuciyarka da addu'a da neman halal kawai. " +
-                'Ka tabbata duk abin da kake nema ba zai sabawa bangaskiyarka ba.';
-            }
-
-            base +=
-              '\n\nKarshe: Ka dauki wannan mako a matsayin lokaci na gyara niyya, ' +
-              'tsabtace zuciya, da tsara sabbin matakai cikin nutsuwa.';
-
-            return base;
-          }
-
-          let text =
-            'Dear ' +
-            who +
-            ',\n\n' +
-            'Your question – "' +
-            question +
-            '" – opens a window into a turning point in your timeline. ' +
-            'The pattern around you shows tension between what you desire and what you are ready to carry.';
-
-          if (t === 'love') {
-            text +=
-              '\n\nIn love, the energy around you is asking for honesty and softness. ' +
-              'You are being invited to speak your truth without drama, to listen as much as you talk, ' +
-              'and to stop measuring your heart by past disappointments. A gentle conversation could unlock ' +
-              'more peace than a big dramatic change.';
-          } else if (t === 'money') {
-            text +=
-              '\n\nIn the area of money and stability, the signs show slow but real progress. ' +
-              'This is not a time for risky shortcuts. It is a season for building steady, halal opportunities, ' +
-              'learning new skills, and respecting your limits. Every disciplined decision you make now becomes a ' +
-              'small brick in a much bigger structure of abundance.';
-          } else if (t === 'career') {
-            text +=
-              '\n\nFor career and purpose, your path is shifting. You may feel a mix of excitement and fear – ' +
-              'this is normal when your destiny is stretching you. Refresh your CV, clean your workspace, ' +
-              'and be ready to say “yes” to openings that align with your values, not just your ego.';
-          } else if (t === 'geomancy') {
-            text +=
-              '\n\nFrom a geomantic perspective, the figures suggest that your fate is not fixed – ' +
-              'it responds to your choices, your patience, and your discipline. Avoid acting from anger or ' +
-              'confusion. Give decisions a little time to settle before you commit.';
-          } else if (t === 'zodiac') {
-            text +=
-              '\n\nZodiac-wise, this period behaves like a personal eclipse: it hides what is noisy, ' +
-              'so you can finally hear what is true. Pay attention to repeating signs, recurring dreams, and quiet ' +
-              'inner nudges — they are not accidents.';
-          }
-
-          if (religion) {
-            text +=
-              '\n\nSpiritually, as a ' +
-              religion +
-              ', your path is strongest when your actions stay close to your faith. ' +
-              'Any opportunity that forces you to compromise your core values is not truly for you, no matter how shiny it looks.';
-          }
-
-          text +=
-            '\n\nFinal guidance: move gently, but do not stay stuck. Take one clear step this week that ' +
-            'matches the kind of life you want to live, and let the universe meet you halfway.';
-
-          return text;
+Continue taking small steps in the direction of your purpose.`;
         }
+
       })();
     </script>
   </body>
