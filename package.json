@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Bkzazzau1/astrorealm#readme",
   "dependencies": {
+    "@netlify/blobs": "^10.3.3",
     "openai": "^6.8.1"
   }
 }
