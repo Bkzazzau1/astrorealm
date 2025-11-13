@@ -1,24 +1,20 @@
 // netlify/functions/reading.js
-// Serverless function: calls OpenAI Responses API and returns an astrology-style reading.
+// Serverless function that talks to OpenAI and returns a long astrology-style reading
 
-export async function handler(event) {
+const OpenAI = require('openai');
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
-    if (event.httpMethod !== 'POST') {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: 'Method not allowed' }),
-      };
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      console.error('Missing OPENAI_API_KEY env var');
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Server not configured: OPENAI_API_KEY missing' }),
-      };
-    }
-
     const body = JSON.parse(event.body || '{}');
 
     const {
@@ -32,135 +28,127 @@ export async function handler(event) {
       source = '',
     } = body;
 
-    // Build a clean description of the seeker
-    const who =
-      name || dob || mother
-        ? `Name: ${name || 'N/A'}, DOB: ${dob || 'N/A'}, Mother: ${mother || 'N/A'}`
-        : 'No personal data provided.';
+    // 🧠 Build a dynamic language rule so user can pick ANY language
+    const langCode = String(lang || 'en').toLowerCase();
 
-    const languageNote = `Language code: ${lang}. If 'ha', 'hau', or 'hausa', mix Hausa and English in a natural way. Otherwise respond fully in simple, calm English.`;
-    const religionNote = religion
-      ? `The seeker identifies with this religion: ${religion}. Respect it and avoid anything that contradicts common spiritual boundaries. No haram, no shirk, no occult instructions.`
-      : 'No religion specified. Keep the tone neutral and respectful.';
+    const languageGuidance = `
+The seeker chose language code: "${langCode}".
 
-    // 🔮 System-style instructions for the reading
-    const instructions = `
-You are an astrology / spiritual guidance engine for a website called AstroRealm.
+Language rules:
+- If the code is "ha", "hau" or "hausa": reply in a gentle mix of simple English + Hausa,
+  using mostly very simple Hausa sentences plus some easy English where needed.
+- If the code is "en" or empty: reply fully in clear, international English.
+- If the code is another language (e.g. "fr", "es", "ar", "pt", "hi"):
+    • Reply primarily in that language.
+    • If you are unsure of some phrases, you may mix a little simple English to keep it clear.
+    • Do NOT mention these rules in the answer.
+`;
 
-RULES:
-- Tone: gentle, reflective, non-scary, supportive.
-- Never promise money, jackpots, betting wins, or guaranteed success.
-- Never give medical, legal, or dangerous advice.
-- Never give exact gambling or betting predictions. You may talk about mindset and timing ONLY.
-- Length: around 900–1100 words (not short). Use paragraphs.
-- Style: astrology, geomancy, palmistry, zodiac, destiny reading — depending on the topic.
-- Mention timing in a soft way (e.g. "over the next few weeks", "this season", "this phase").
-- Always remind the seeker that this is guidance only, not a fixed fate.
+    const systemPrompt = `
+You are AstroRealm, a calm, ethical spiritual guide that speaks through
+astrology, palmistry, geomancy, destiny readings, and weekly guidance.
 
-LANGUAGE:
-- ${languageNote}
+General rules:
+- Tone: warm, reflective, grounded. No fear, no manipulation.
+- Never guarantee money, gambling wins, medical cures, or specific miracles.
+- You may speak about "timing", "energy", "focus", "habits", "discipline", "opportunities".
+- Always respect the seeker's religion; never contradict their faith.
+- Assume the answer is for guidance only, not professional medical, legal or financial advice.
+- Length: around 900–1100 words.
+- The reading must clearly respond to the seeker’s exact question, not just a generic horoscope.
+  Mention or paraphrase their question in the first or second paragraph.
+${languageGuidance}
 
-RELIGION / SPIRITUAL BOUNDARIES:
-- ${religionNote}
+Context you receive:
+- topic: one of zodiac, palmistry, geomancy, destiny, weekly, love, money, career, astrosport
+- question: the exact question of the seeker
+- name: the seeker’s name if provided
+- dob: date of birth or birth data (can be empty)
+- mother: mother's first name if given (often used when DOB is unknown)
+- religion: user religion if provided (e.g. Islam, Christianity, etc.)
+- source: which page or flow the user came from (you can mention it indirectly if useful)
 
-TOPIC MAPPING:
-- If topic = "zodiac", treat it as a zodiac / birth-chart style guidance using the details given.
-- If topic = "palmistry", imagine the palm lines and describe themes: life line, heart line, fate line.
-- If topic = "geomancy", imagine a shield chart and speak like a ramli / geomancy oracle.
-- If topic = "destiny" or "weekly", focus on destiny, current phase, and the coming 7–30 days.
-- If topic = "love", focus on relationships, heart healing, and communication.
-- If topic = "money", focus on stability, caution, halal/ethical income, and discipline.
-- If topic = "career", focus on calling, skills, and practical next steps.
-- If topic = "astrosport", talk ONLY about mindset, discipline, patience, and emotional control around sports. NO predictions of match results or bets.
+Per-topic flavour:
+- zodiac: talk about signs, houses, timing windows, but keep it symbolic (no fixed fate).
+- palmistry: talk about life line, fate line, heart line, mind line as symbols.
+- geomancy: talk about figures and shield-chart style symbolism (but no Arabic magic claims).
+- destiny: talk about current phase, what is opening / closing, what habits to change.
+- weekly: focus on 7–10 days: priorities, emotional tone, timing.
+- love: focus on communication, boundaries, emotional healing, self-respect.
+- money: focus on discipline, realistic planning, halal/ethical income, patience.
+- career: focus on skills, learning, networking, long-term direction.
+- astrosport: only mindset, discipline, focus, recovery. NEVER give betting tips or
+  "this team will win". You can say things like: "Use astrology as reflection, not
+  as a betting system."
 
-REMEMBER:
-- This is for an online portal where the seeker completed tasks to "unlock" a reading. Give them something that feels deep and caring, but still responsible.
-    `.trim();
+Structure:
+- Always structure the answer in 4–7 long paragraphs with smooth transitions.
+- Open by acknowledging the seeker (by name if provided) and their question.
+- Close with a short, grounded reminder that the future also depends on the seeker’s actions.
+`;
 
-    // Build the actual user input for the Responses API
-    const inputText = `
-AstroRealm reading request:
+    const userPrompt = `
+Seeker info:
+- Name: ${name || 'unknown'}
+- Topic: ${topic}
+- Question: ${question}
+- Date of birth / birth data: ${dob || 'not provided'}
+- Mother's name: ${mother || 'not provided'}
+- Language code: ${langCode}
+- Religion: ${religion || 'not specified'}
+- Source page: ${source || 'not specified'}
 
-Topic: ${topic}
-Question: ${question}
-Seeker info: ${who}
-Language: ${lang}
-Religion: ${religion || 'not specified'}
-Source page: ${source || 'unknown'}
+Task:
+Write a detailed ${topic} style reading for this seeker, following all the rules
+in the system prompt.
 
-Write the full reading now, respecting all rules. Start directly with the message to the seeker, no bullet lists, no headings, no disclaimers (the site will show a disclaimer separately).
-    `.trim();
+Very important:
+- The reading must feel personalised to THIS specific question and situation.
+- Refer to their question directly or indirectly in the first or second paragraph.
+- Do NOT output markdown, headings, or bullet points — just plain paragraphs of text.
+`;
 
-    // Call OpenAI Responses API via fetch
-    const openaiRes = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini', // good balance of quality & cost :contentReference[oaicite:0]{index=0}
-        instructions,
-        input: inputText,
-        max_output_tokens: 1200,
-      }),
+    const completion = await client.chat.completions.create({
+      model: 'gpt-4.1-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.8,
+      max_tokens: 1200,
     });
 
-    if (!openaiRes.ok) {
-      const errorText = await openaiRes.text();
-      console.error('OpenAI error:', openaiRes.status, errorText);
-      return {
-        statusCode: 502,
-        body: JSON.stringify({ error: 'Failed to generate reading' }),
-      };
-    }
+    const reading =
+      completion.choices?.[0]?.message?.content?.trim() ||
+      'We could not generate a reading at this time.';
 
-    const data = await openaiRes.json();
+    // Optional: you can customise title based on topic
+    const titleMap = {
+      zodiac: 'Your Zodiac Message',
+      palmistry: 'Your Palm Line Message',
+      geomancy: 'Your Shield Chart Message',
+      destiny: 'Your Destiny Reading',
+      weekly: 'Your Weekly Guidance',
+      love: 'Your Love Path Reading',
+      money: 'Your Money & Stability Reading',
+      career: 'Your Career & Purpose Reading',
+      astrosport: 'Your AstroSport Focus',
+    };
 
-    // Safely extract text from Responses API structure
-    let readingText = '';
-
-    if (Array.isArray(data.output)) {
-      for (const item of data.output) {
-        if (Array.isArray(item.content)) {
-          for (const part of item.content) {
-            if (part.type === 'output_text' && typeof part.text === 'string') {
-              readingText += part.text;
-            }
-          }
-        }
-      }
-    }
-
-    if (!readingText && typeof data.output_text === 'string') {
-      readingText = data.output_text;
-    }
-
-    if (!readingText) {
-      console.error('No text found in Responses payload', data);
-      return {
-        statusCode: 502,
-        body: JSON.stringify({ error: 'Empty reading from model' }),
-      };
-    }
+    const title = titleMap[topic.toLowerCase()] || 'Your Cosmic Message';
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        reading: readingText,
-        title: `Your ${capitalize(topic)} Reading`,
-      }),
+      body: JSON.stringify({ reading, title }),
     };
   } catch (err) {
-    console.error('Function error:', err);
+    console.error('reading function error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Unexpected server error' }),
+      body: JSON.stringify({
+        error: 'Failed to generate reading',
+        details: err.message || String(err),
+      }),
     };
   }
-}
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+};
