@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Unlock Your Reading • AstroGate</title>
+    <title>Unlock Your Reading • AstroRealm</title>
 
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
@@ -51,6 +51,11 @@
         text-decoration: none;
       }
 
+      .btn[disabled] {
+        opacity: 0.6;
+        cursor: default;
+      }
+
       iframe {
         width: 100%;
         height: 620px;
@@ -59,64 +64,13 @@
         margin-top: 14px;
         background: #020617;
       }
+
+      .error {
+        margin-top: 8px;
+        color: #ffb3b3;
+        font-size: 0.85rem;
+      }
     </style>
-
-    <script>
-      const REQUIRED_TASKS = 3;
-
-      function getDone() {
-        return Number(localStorage.getItem("astrogate_tasks_done") || 0);
-      }
-
-      function setDone(v) {
-        localStorage.setItem("astrogate_tasks_done", String(v));
-      }
-
-      function markTaskCompleted() {
-        let done = getDone();
-        if (done >= REQUIRED_TASKS) return;
-        setDone(++done);
-        renderState();
-      }
-
-      function renderState() {
-        const done = getDone();
-
-        const progress = document.getElementById("js-progress");
-        const msg = document.getElementById("js-message");
-        const actions = document.getElementById("js-actions");
-        const unlock = document.getElementById("js-unlock");
-
-        progress.textContent = `${done} / ${REQUIRED_TASKS} tasks completed`;
-
-        if (done < REQUIRED_TASKS) {
-          msg.innerHTML =
-            "Complete tasks inside the wall below. After completing one, tap <strong>“I completed one task”</strong>.";
-          actions.style.display = "block";
-          unlock.style.display = "none";
-        } else {
-          msg.textContent =
-            "Perfect. You’ve completed enough tasks to unlock your spiritual reading.";
-          actions.style.display = "none";
-          unlock.style.display = "block";
-        }
-      }
-
-      function getTopic() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get("topic") || "general";
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const topic = getTopic();
-
-        // Update unlock link with topic
-        document.getElementById("finalUnlockLink").href =
-          "./reading.html?topic=" + encodeURIComponent(topic);
-
-        renderState();
-      });
-    </script>
   </head>
 
   <body class="sky-static">
@@ -139,35 +93,100 @@
 
         <div class="card">
           <div class="progress" id="js-progress">0 / 3 tasks completed</div>
-          <p id="js-message" class="hint"></p>
+          <p id="js-message" class="hint">
+            Complete tasks inside the wall below. As soon as the CPA network confirms each
+            completion, this page will update automatically.
+          </p>
 
-          <!-- Offerwall -->
+          <!-- Offerwall iframe. We'll inject ?subid=SESSION_ID in JS -->
           <iframe
+            id="offerwall"
             sandbox="allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-popups-to-escape-sandbox"
-            src="https://www.cdnflyer.com/list/jDtbT1"
+            src=""
           ></iframe>
 
-          <div id="js-actions">
-            <button class="btn" onclick="markTaskCompleted()">
-              I completed one task
-            </button>
-            <p class="hint">
-              After finishing any offer (install, survey, signup), return here
-              and tap this button. Repeat 3 times to unlock your reading.
-            </p>
-          </div>
+          <p class="hint" style="margin-top:10px;">
+            Do not close this tab while completing tasks. After each valid completion, the counter
+            above will move closer to 3.
+          </p>
 
-          <!-- UNLOCK BUTTON -->
+          <p id="js-error" class="error" style="display:none;"></p>
+
           <div id="js-unlock" style="display:none; margin-top:14px;">
-            <a id="finalUnlockLink" href="./reading.html" class="btn">
-              Unlock My Reading
-            </a>
+            <a href="./reading.html" class="btn">Unlock My Reading</a>
             <p class="hint" style="margin-top:8px;">
-              Your destiny gate is now open. Continue to your reading.
+              Your destiny gate is open. This will take you to your astrology reading page.
             </p>
           </div>
         </div>
       </main>
     </div>
+
+    <script>
+      (function () {
+        const REQUIRED = 3;
+        const progressEl = document.getElementById('js-progress');
+        const msgEl = document.getElementById('js-message');
+        const unlockBox = document.getElementById('js-unlock');
+        const errEl = document.getElementById('js-error');
+        const wall = document.getElementById('offerwall');
+
+        const API_URL = '/api/tasks';
+
+        // 1) Get or create session ID (used as subid/session for CPA + backend)
+        function getSessionId() {
+          let sid = localStorage.getItem('astro_session_id');
+          if (!sid) {
+            sid = 's_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+            localStorage.setItem('astro_session_id', sid);
+          }
+          return sid;
+        }
+
+        const sessionId = getSessionId();
+
+        // 2) Inject subid/session into Viral782 URL
+        //    Adjust "subid" param name if Viral782 uses a different one.
+        const baseUrl = 'https://www.viral782.com/unlock/jyDakSOq';
+        const hasQ = baseUrl.includes('?');
+        const wallUrl =
+          baseUrl + (hasQ ? '&' : '?') + 'subid=' + encodeURIComponent(sessionId);
+        wall.src = wallUrl;
+
+        // 3) Poll backend for real completion count
+        async function refreshStatus() {
+          try {
+            errEl.style.display = 'none';
+            const res = await fetch(API_URL + '?session=' + encodeURIComponent(sessionId));
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+
+            const done = data.done || 0;
+            const required = data.required || REQUIRED;
+
+            progressEl.textContent = `${done} / ${required} tasks completed`;
+
+            if (done >= required) {
+              msgEl.textContent =
+                'Beautiful. You’ve completed enough confirmed tasks to unlock your spiritual reading.';
+              unlockBox.style.display = 'block';
+            } else {
+              msgEl.innerHTML =
+                'Complete tasks inside the wall below. When the CPA network sends confirmation for each valid task, this counter will update automatically.';
+              unlockBox.style.display = 'none';
+            }
+          } catch (err) {
+            console.error(err);
+            errEl.textContent =
+              'We could not contact the unlock server right now. Your completions are safe; the page will try again automatically.';
+            errEl.style.display = 'block';
+          }
+        }
+
+        // Initial load + auto-poll every 15 seconds
+        refreshStatus();
+        setInterval(refreshStatus, 15000);
+      })();
+    </script>
   </body>
 </html>
