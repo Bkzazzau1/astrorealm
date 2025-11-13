@@ -9,7 +9,6 @@
       content="Palmistry on AstroRealm. Upload your palm photo, then complete three tasks to unlock your reading."
     />
 
-    <!-- From /pages/* go one level up to /assets -->
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
 
@@ -17,7 +16,6 @@
       :root {
         color-scheme: dark;
       }
-
       .sr-only {
         position: absolute;
         width: 1px;
@@ -61,8 +59,7 @@
         color: var(--text);
         border: 1px solid rgba(255, 255, 255, 0.25);
         appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
+        outline: none;
       }
       select option {
         background-color: #0a0b10;
@@ -75,9 +72,9 @@
       select {
         background-image: linear-gradient(to bottom, transparent 0%, transparent 100%),
           url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4af37'><path d='M4 6l4 4 4-4'/></svg>");
-        background-repeat: no-repeat, no-repeat;
-        background-position: right 0.8rem center, right 0.8rem center;
-        background-size: 16px 16px, 16px 16px;
+        background-repeat: no-repeat;
+        background-position: right 0.8rem center;
+        background-size: 16px 16px;
         padding-right: 2.2rem;
       }
 
@@ -103,7 +100,7 @@
         opacity: 0.85;
       }
 
-      /* file button nicer */
+      /* file button */
       input[type='file']::-webkit-file-upload-button,
       input[type='file']::file-selector-button {
         background: linear-gradient(90deg, #cfb053, #a67c00);
@@ -130,6 +127,7 @@
       }
     </style>
   </head>
+
   <body class="sky-static">
     <div class="container">
       <header class="header">
@@ -139,22 +137,19 @@
         </a>
         <nav class="nav">
           <a href="./topics.html">Topics</a>
-
           <a href="./contact.html">Contact</a>
         </nav>
       </header>
 
       <h1 class="mt-2">Palmistry 🔮</h1>
       <p class="hint">
-        Upload a clear photo of your palm, share your focus line and question, then
-        <strong>complete three tasks</strong> to unlock your reading.
-        <br />
-        This page does <strong>not</strong> upload your image to our server; it stays in your
-        browser/device.
+        Upload a clear photo of your palm, choose your line, ask your question, then
+        <strong>complete three tasks</strong> to unlock your reading.  
+        <br />Your image never leaves your device.
       </p>
 
       <!-- Palmistry Intake -->
-      <section class="card mt-2" aria-label="Palmistry Upload & Details">
+      <section class="card mt-2">
         <form id="palmForm" novalidate>
           <div class="grid-auto">
             <label class="field">
@@ -209,56 +204,50 @@
             <span>Your Question <span style="color: var(--gold)">*</span></span>
             <textarea
               id="question"
-              placeholder="e.g., What is my Life line saying about the next 3 months?"
-              required
+              placeholder="e.g., What does my Life line say about my next 3 months?"
             ></textarea>
           </label>
 
           <div class="grid mt-2" style="grid-template-columns: 1fr">
             <label class="center field">
-              <span>Palm photo (recommended) <span style="color: var(--gold)">*</span></span>
+              <span>Palm photo <span style="color: var(--gold)">*</span></span>
               <input id="handPhoto" type="file" accept="image/*" />
             </label>
 
             <div class="center mt-1">
               <div class="preview-frame">
-                <small style="color: #cfcfe6">
-                  Choose a clear palm photo. Many devices show a small thumbnail preview in the file
-                  picker.
+                <small style="color:#cfcfe6">
+                  Choose a clear palm image. The preview shows in your file picker.
                 </small>
               </div>
-              <p class="hint mt-1">
-                Tip: Use daylight, keep the entire palm and wrist crease inside the frame, and avoid
-                heavy shadows.
-              </p>
             </div>
           </div>
 
           <div class="error" id="formError"></div>
 
           <div class="mt-2 center">
-            <!-- ✅ Live CPA/locker URL (Viral782). Change here if you switch networks -->
-            <a href="https://www.viral782.com/unlock/jyDakSOq" id="unlockBtn" class="unlock-btn"
-              >Continue to Unlock (3 Tasks)</a
-            >
+            <!-- 🔥 NEW UNLOCK FLOW (Unified system) -->
+            <a href="./unlock.html?topic=palmistry" id="unlockBtn" class="unlock-btn">
+              Continue to Unlock (3 Tasks)
+            </a>
           </div>
 
-          <p class="hint mt-1 center">
+          <p class="hint center mt-1">
             Compliance: No medical, legal, gambling, or guaranteed financial outcomes.
           </p>
         </form>
       </section>
 
-      <!-- Quick question shortcuts (static links) -->
+      <!-- Quick palmistry shortcuts -->
       <h2 class="mt-3">Quick questions</h2>
       <div class="grid mt-1">
-        <a class="card" href="./ask.html" title="Life line • health & energy">
+        <a class="card" href="./ask.html">
           <h3>Life line • health & energy</h3>
         </a>
-        <a class="card" href="./ask.html" title="Fate line • career timing">
+        <a class="card" href="./ask.html">
           <h3>Fate line • career timing</h3>
         </a>
-        <a class="card" href="./ask.html" title="Heart line • love clarity">
+        <a class="card" href="./ask.html">
           <h3>Heart line • love clarity</h3>
         </a>
       </div>
@@ -280,14 +269,14 @@
         unlockBtn.addEventListener('click', (e) => {
           errorEl.style.display = 'none';
 
-          const question = val('question');
-          const language = val('language');
           const handSide = val('handSide') || 'right';
           const dominant = val('dominant') || 'dominant';
           const focusLine = val('focusLine') || 'life';
-          const name = val('seekerName') || null;
+          const question = val('question');
+          const language = val('language');
+          const seekerName = val('seekerName') || null;
           const fileInput = document.getElementById('handPhoto');
-          const file = fileInput && fileInput.files && fileInput.files[0];
+          const file = fileInput?.files?.[0];
 
           if (!question || !language) {
             e.preventDefault();
@@ -306,23 +295,23 @@
           const payload = {
             topic: 'palmistry',
             method: 'palmistry',
-            language,
             question,
-            seeker: { name },
+            language,
+            seeker: { name: seekerName },
             palm: {
               handSide,
               dominant,
               focusLine,
               hasPhoto: true,
-              fileName: file.name || null,
+              fileName: file.name
             },
-            createdAt: new Date().toISOString(),
+            createdAt: new Date().toISOString()
           };
 
           try {
             localStorage.setItem('astroReading', JSON.stringify(payload));
-            // Unlock flow requires 3 tasks
             localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+            localStorage.removeItem('astrogate_tasks_done'); // reset tasks
           } catch (err) {
             console.warn('localStorage failed', err);
           }

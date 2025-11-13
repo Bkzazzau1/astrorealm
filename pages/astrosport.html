@@ -106,7 +106,6 @@
         </a>
         <nav class="nav">
           <a href="./topics.html">Topics</a>
-
           <a href="./contact.html">Contact</a>
         </nav>
       </header>
@@ -232,16 +231,16 @@
         <div class="error" id="formError"></div>
 
         <div class="unlock-wrap mt-2">
-          <!-- Live locker URL (replace here if you change network/provider) -->
+          <!-- 🔑 Now we go to the 3-task unlock page instead of direct CPAlead -->
           <a
-            href="https://www.viral782.com/unlock/jyDakSOq"
+            href="./unlock.html?topic=astrosport"
             id="unlockBtn"
             class="unlock-btn"
             role="button"
             >Continue to Unlock (3 Tasks)</a
           >
           <span class="hint"
-            >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</span
+            >Complete the form, then continue to unlock your star-based mindset reading (no gambling predictions).</span
           >
         </div>
       </form>
@@ -315,10 +314,12 @@
 
           try {
             localStorage.setItem('astroReading', JSON.stringify(payload));
-            localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+            // optional: reset task counter for this new reading session
+            localStorage.removeItem('astrogate_tasks_done');
           } catch (err) {
             console.warn('localStorage failed', err);
           }
+          // no preventDefault here: after saving data, browser will follow href to unlock.html
         });
       })();
     </script>

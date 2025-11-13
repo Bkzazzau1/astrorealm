@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Unlock Your Reading • AstroGate</title>
+
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/theme.css" />
+
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      .card {
+        border-radius: 16px;
+        border: 1px solid rgba(212, 175, 55, 0.35);
+        background: rgba(3, 10, 30, 0.9);
+        padding: 18px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+      }
+
+      .progress {
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: #ffd700;
+        margin-bottom: 8px;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 0.7rem 1.3rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #ffd700, #f3b547);
+        border: none;
+        color: #120c00;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      iframe {
+        width: 100%;
+        height: 620px;
+        border: none;
+        border-radius: 14px;
+        margin-top: 14px;
+        background: #020617;
+      }
+    </style>
+
+    <script>
+      const REQUIRED_TASKS = 3;
+
+      function getDone() {
+        return Number(localStorage.getItem("astrogate_tasks_done") || 0);
+      }
+
+      function setDone(v) {
+        localStorage.setItem("astrogate_tasks_done", String(v));
+      }
+
+      function markTaskCompleted() {
+        let done = getDone();
+        if (done >= REQUIRED_TASKS) return;
+        setDone(++done);
+        renderState();
+      }
+
+      function renderState() {
+        const done = getDone();
+
+        const progress = document.getElementById("js-progress");
+        const msg = document.getElementById("js-message");
+        const actions = document.getElementById("js-actions");
+        const unlock = document.getElementById("js-unlock");
+
+        progress.textContent = `${done} / ${REQUIRED_TASKS} tasks completed`;
+
+        if (done < REQUIRED_TASKS) {
+          msg.innerHTML =
+            "Complete tasks inside the wall below. After completing one, tap <strong>“I completed one task”</strong>.";
+          actions.style.display = "block";
+          unlock.style.display = "none";
+        } else {
+          msg.textContent =
+            "Perfect. You’ve completed enough tasks to unlock your spiritual reading.";
+          actions.style.display = "none";
+          unlock.style.display = "block";
+        }
+      }
+
+      function getTopic() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("topic") || "general";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const topic = getTopic();
+
+        // Update unlock link with topic
+        document.getElementById("finalUnlockLink").href =
+          "./reading.html?topic=" + encodeURIComponent(topic);
+
+        renderState();
+      });
+    </script>
+  </head>
+
+  <body class="sky-static">
+    <div class="container">
+      <header class="header">
+        <a class="logo" href="../index.html">
+          <img src="../assets/img/logo.svg" alt="AstroRealm logo" />
+          <span>AstroRealm</span>
+        </a>
+
+        <nav class="nav">
+          <a href="./topics.html">Topics</a>
+          <a href="./about.html">About</a>
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </header>
+
+      <main class="wrap">
+        <h1>Complete Tasks to Unlock Your Reading</h1>
+
+        <div class="card">
+          <div class="progress" id="js-progress">0 / 3 tasks completed</div>
+          <p id="js-message" class="hint"></p>
+
+          <!-- Offerwall -->
+          <iframe
+            sandbox="allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-popups-to-escape-sandbox"
+            src="https://www.cdnflyer.com/list/jDtbT1"
+          ></iframe>
+
+          <div id="js-actions">
+            <button class="btn" onclick="markTaskCompleted()">
+              I completed one task
+            </button>
+            <p class="hint">
+              After finishing any offer (install, survey, signup), return here
+              and tap this button. Repeat 3 times to unlock your reading.
+            </p>
+          </div>
+
+          <!-- UNLOCK BUTTON -->
+          <div id="js-unlock" style="display:none; margin-top:14px;">
+            <a id="finalUnlockLink" href="./reading.html" class="btn">
+              Unlock My Reading
+            </a>
+            <p class="hint" style="margin-top:8px;">
+              Your destiny gate is now open. Continue to your reading.
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

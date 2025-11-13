@@ -287,23 +287,7 @@
       </div>
     </div>
 
-    <!-- Unlock modal (still same logic, just nicer text) -->
-    <div id="adModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="adTitle">
-      <div class="modal-backdrop"></div>
-      <div class="modal-card" style="text-align: center">
-        <h3 id="adTitle" style="margin: 0 0 10px">Unlock Your Reading</h3>
-        <p class="hint">Complete one unlock to view your full geomancy interpretation.</p>
-        <div id="adTimer" style="font-size: 28px; margin: 10px 0">5</div>
-        <div class="modal-actions" style="justify-content: center">
-          <button id="adClose" class="pill primary" disabled>Continue</button>
-        </div>
-      </div>
-    </div>
-
     <script>
-      // 🔗 LIVE CPALEAD LOCKER
-      const CPALOCKER_URL = 'https://www.viral782.com/unlock/jyDakSOq';
-
       // -------------------- Utilities & State --------------------
       const qText = document.getElementById('qtext');
 
@@ -324,13 +308,8 @@
       const cancelSettings = document.getElementById('cancelSettings');
       const confirmSettings = document.getElementById('confirmSettings');
 
-      const adModal = document.getElementById('adModal');
-      const adTimer = document.getElementById('adTimer');
-      const adClose = document.getElementById('adClose');
-
       let NAV_LOCK = false; // 🔒 prevent double "View Interpretation"
       let SAVING = false; // 🔒 prevent double "Save Chart"
-      let rewardedShown = false;
 
       // Token → Latin name (same map as Flutter)
       const LATIN_BY_TOKEN = {
@@ -491,7 +470,7 @@
       }
       saveBtn.addEventListener('click', saveChart);
 
-      // ------------------ Settings → Unlock → CPAlead → reading.html ------------------
+      // ------------------ Settings → Unlock (3 tasks) → reading.html ------------------
       function openSettings() {
         settingsModal.classList.add('show');
       }
@@ -512,71 +491,39 @@
           return;
         }
         closeSettings();
-        maybeShowRewarded().then(() => {
-          // Build names_with_houses (English Latin) – kept for future use
-          const houses = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
-          const namesWithHouses = houses.map((f, i) => ({ house: i + 1, name: latinFromFig(f) }));
 
-          const interpPayload = {
-            language: lang,
-            religion: rel,
-            question,
-            names_with_houses: namesWithHouses,
-            figures: houses, // T1..T16
-            fromHistory: false,
-          };
-          localStorage.setItem('astro_interp_payload', JSON.stringify(interpPayload));
+        // Build names_with_houses (English Latin) – kept for reading.html
+        const houses = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
+        const namesWithHouses = houses.map((f, i) => ({ house: i + 1, name: latinFromFig(f) }));
 
-          // 🔗 Send user through CPAlead, then back to reading.html (universal page)
-          const origin = window.location.origin || 'https://astrorealm.online';
-          const qs = new URLSearchParams({
-            topic: 'geomancy',
-            q: question || 'Geomancy interpretation',
-            lang: lang,
-            religion: rel,
-            from: 'geomancy',
-          });
-          const target = origin + '/pages/reading.html?' + qs.toString();
-          const lockerUrl = CPALOCKER_URL + '?redirect=' + encodeURIComponent(target);
-          location.href = lockerUrl;
-        });
+        const interpPayload = {
+          language: lang,
+          religion: rel,
+          question,
+          names_with_houses: namesWithHouses,
+          figures: houses, // T1..T16
+          fromHistory: false,
+        };
+        localStorage.setItem('astro_interp_payload', JSON.stringify(interpPayload));
+        // 3-task requirement for this session
+        try {
+          localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
+          localStorage.removeItem('astrogate_tasks_done');
+        } catch (e) {
+          console.warn('localStorage failed', e);
+        }
+
+        // 🔗 Go to central unlock page (shows CPAlead, enforces 3 tasks)
+        const qs = new URLSearchParams({ topic: 'geomancy' });
+        window.location.href = './unlock.html?' + qs.toString();
       });
-
-      async function maybeShowRewarded() {
-        if (rewardedShown) return;
-        rewardedShown = true;
-        // simple 5s countdown
-        adModal.classList.add('show');
-        let t = 5;
-        adTimer.textContent = String(t);
-        adClose.disabled = true;
-        const id = setInterval(() => {
-          t -= 1;
-          adTimer.textContent = String(t);
-          if (t <= 0) {
-            clearInterval(id);
-            adClose.disabled = false;
-            adClose.focus();
-          }
-        }, 1000);
-        await new Promise((res) =>
-          adClose.addEventListener(
-            'click',
-            () => {
-              adModal.classList.remove('show');
-              res();
-            },
-            { once: true }
-          )
-        );
-      }
 
       viewBtn.addEventListener('click', () => {
         if (NAV_LOCK) return;
         NAV_LOCK = true;
         viewBtn.disabled = true;
         viewLabel.textContent = 'Opening…';
-        // ALWAYS open settings first (exact Flutter rule)
+        // ALWAYS open settings first (same rule as app)
         langSel.value = selectedLanguageInit || 'en';
         relSel.value = '';
         openSettings();

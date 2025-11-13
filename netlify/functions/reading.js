@@ -2,6 +2,7 @@
 // Serverless function that talks to OpenAI and returns a long astrology-style reading
 
 const OpenAI = require('openai');
+
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -15,32 +16,55 @@ exports.handler = async (event) => {
   }
 
   try {
-    const body = JSON.parse(event.body || '{}');
+    const rawBody = JSON.parse(event.body || '{}');
+    const body = rawBody && typeof rawBody === 'object' ? rawBody : {};
 
-    const {
-      topic = 'destiny',
-      question = 'What is happening in my life now?',
-      name = '',
-      dob = '',
-      mother = '',
-      lang = 'en',
-      religion = '',
-      source = '',
-    } = body;
+    // Accept multiple possible keys & only use defaults if NOTHING was sent
+    const topic =
+      (body.topic || body.type || '').toString().trim().toLowerCase() || 'destiny';
+
+    const question =
+      (body.question || body.q || '').toString().trim() ||
+      'What is happening in my life now?';
+
+    const name = (body.name || '').toString().trim();
+    const dob = (body.dob || body.date_of_birth || '').toString().trim();
+    const mother = (body.mother || body.mother_name || '').toString().trim();
+    const lang =
+      (body.lang || body.language || 'en').toString().trim().toLowerCase() || 'en';
+    const religion = (body.religion || '').toString().trim();
+    const source = (body.source || body.from || '').toString().trim();
+
+    // 🧠 Build a dynamic language rule so user can pick ANY language
+    const langCode = String(lang || 'en').toLowerCase();
+
+    const languageGuidance = `
+The seeker chose language code: "${langCode}".
+
+Language rules:
+- If the code is "ha", "hau" or "hausa": reply in a gentle mix of simple English + Hausa,
+  using mostly very simple Hausa sentences plus some easy English where needed.
+- If the code is "en" or empty: reply fully in clear, international English.
+- If the code is another language (e.g. "fr", "es", "ar", "pt", "hi"):
+    • Reply primarily in that language.
+    • If you are unsure of some phrases, you may mix a little simple English to keep it clear.
+    • Do NOT mention these rules in the answer.
+`;
 
     const systemPrompt = `
 You are AstroRealm, a calm, ethical spiritual guide that speaks through
 astrology, palmistry, geomancy, destiny readings, and weekly guidance.
 
-Rules:
+General rules:
 - Tone: warm, reflective, grounded. No fear, no manipulation.
 - Never guarantee money, gambling wins, medical cures, or specific miracles.
 - You may speak about "timing", "energy", "focus", "habits", "discipline", "opportunities".
 - Always respect the seeker's religion; never contradict their faith.
 - Assume the answer is for guidance only, not professional medical, legal or financial advice.
 - Length: around 900–1100 words.
-- If lang is Hausa ("ha", "hau", "hausa"), use a gentle mix of simple English + Hausa.
-- If lang is not Hausa, answer fully in clear international English.
+- The reading must clearly respond to the seeker’s exact question, not just a generic horoscope.
+  Mention or paraphrase their question in the first or second paragraph.
+${languageGuidance}
 
 Context you receive:
 - topic: one of zodiac, palmistry, geomancy, destiny, weekly, love, money, career, astrosport
@@ -64,8 +88,10 @@ Per-topic flavour:
   "this team will win". You can say things like: "Use astrology as reflection, not
   as a betting system."
 
-Always structure the answer in 4–7 paragraphs with smooth transitions.
-Close with a short, grounded reminder that the future also depends on the seeker’s actions.
+Structure:
+- Always structure the answer in 4–7 long paragraphs with smooth transitions.
+- Open by acknowledging the seeker (by name if provided) and their question.
+- Close with a short, grounded reminder that the future also depends on the seeker’s actions.
 `;
 
     const userPrompt = `
@@ -75,12 +101,18 @@ Seeker info:
 - Question: ${question}
 - Date of birth / birth data: ${dob || 'not provided'}
 - Mother's name: ${mother || 'not provided'}
-- Language code: ${lang}
+- Language code: ${langCode}
 - Religion: ${religion || 'not specified'}
 - Source page: ${source || 'not specified'}
 
-Write a detailed ${topic} style reading for this seeker, following all the rules.
-Do NOT output markdown, headings, or bullet points — just plain paragraphs of text.
+Task:
+Write a detailed ${topic} style reading for this seeker, following all the rules
+in the system prompt.
+
+Very important:
+- The reading must feel personalised to THIS specific question and situation.
+- Refer to their question directly or indirectly in the first or second paragraph.
+- Do NOT output markdown, headings, or bullet points — just plain paragraphs of text.
 `;
 
     const completion = await client.chat.completions.create({
@@ -97,7 +129,6 @@ Do NOT output markdown, headings, or bullet points — just plain paragraphs of 
       completion.choices?.[0]?.message?.content?.trim() ||
       'We could not generate a reading at this time.';
 
-    // Optional: you can customise title based on topic
     const titleMap = {
       zodiac: 'Your Zodiac Message',
       palmistry: 'Your Palm Line Message',
@@ -110,7 +141,7 @@ Do NOT output markdown, headings, or bullet points — just plain paragraphs of 
       astrosport: 'Your AstroSport Focus',
     };
 
-    const title = titleMap[topic.toLowerCase()] || 'Your Cosmic Message';
+    const title = titleMap[topic] || 'Your Cosmic Message';
 
     return {
       statusCode: 200,
