@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Unlock Your Reading • AstroGate</title>
 
-    <!-- Re-use existing styles -->
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
 
@@ -52,11 +51,6 @@
         text-decoration: none;
       }
 
-      .btn[disabled] {
-        opacity: 0.6;
-        cursor: default;
-      }
-
       iframe {
         width: 100%;
         height: 620px;
@@ -68,7 +62,6 @@
     </style>
 
     <script>
-      // how many tasks are required in total
       const REQUIRED_TASKS = 3;
 
       function getDone() {
@@ -82,45 +75,47 @@
       function markTaskCompleted() {
         let done = getDone();
         if (done >= REQUIRED_TASKS) return;
-
-        done += 1;
-        setDone(done);
-        renderState();
-      }
-
-      function resetTasks() {
-        // for testing / debugging
-        localStorage.removeItem("astrogate_tasks_done");
+        setDone(++done);
         renderState();
       }
 
       function renderState() {
         const done = getDone();
+
         const progress = document.getElementById("js-progress");
         const msg = document.getElementById("js-message");
-        const doneBtn = document.getElementById("js-done-btn");
         const actions = document.getElementById("js-actions");
         const unlock = document.getElementById("js-unlock");
 
-        if (progress) {
-          progress.textContent = `${done} / ${REQUIRED_TASKS} tasks completed`;
-        }
+        progress.textContent = `${done} / ${REQUIRED_TASKS} tasks completed`;
 
         if (done < REQUIRED_TASKS) {
           msg.innerHTML =
-            "Complete tasks inside the wall below. Each time you finish one, click <strong>“I completed one task”</strong>.";
+            "Complete tasks inside the wall below. After completing one, tap <strong>“I completed one task”</strong>.";
           actions.style.display = "block";
           unlock.style.display = "none";
-          doneBtn.disabled = false;
         } else {
           msg.textContent =
-            "Beautiful. You’ve completed enough tasks to unlock your spiritual reading.";
+            "Perfect. You’ve completed enough tasks to unlock your spiritual reading.";
           actions.style.display = "none";
           unlock.style.display = "block";
         }
       }
 
-      document.addEventListener("DOMContentLoaded", renderState);
+      function getTopic() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("topic") || "general";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const topic = getTopic();
+
+        // Update unlock link with topic
+        document.getElementById("finalUnlockLink").href =
+          "./reading.html?topic=" + encodeURIComponent(topic);
+
+        renderState();
+      });
     </script>
   </head>
 
@@ -146,36 +141,31 @@
           <div class="progress" id="js-progress">0 / 3 tasks completed</div>
           <p id="js-message" class="hint"></p>
 
-          <!-- 🔮 Your CPAlead Offerwall embedded here -->
+          <!-- Offerwall -->
           <iframe
             sandbox="allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-popups-to-escape-sandbox"
             src="https://www.cdnflyer.com/list/jDtbT1"
           ></iframe>
 
           <div id="js-actions">
-            <button id="js-done-btn" class="btn" onclick="markTaskCompleted()">
+            <button class="btn" onclick="markTaskCompleted()">
               I completed one task
             </button>
             <p class="hint">
-              After finishing any offer (installing app, survey, etc.), return
-              here and tap this button. Do this <strong>3 times</strong> to
-              unlock your reading.
+              After finishing any offer (install, survey, signup), return here
+              and tap this button. Repeat 3 times to unlock your reading.
             </p>
           </div>
 
+          <!-- UNLOCK BUTTON -->
           <div id="js-unlock" style="display:none; margin-top:14px;">
-            <!-- TODO: change reading.html path/topic if needed -->
-            <a href="./reading.html" class="btn">Unlock My Reading</a>
+            <a id="finalUnlockLink" href="./reading.html" class="btn">
+              Unlock My Reading
+            </a>
             <p class="hint" style="margin-top:8px;">
-              Your destiny gate is open. This will take you to your astrology
-              reading page.
+              Your destiny gate is now open. Continue to your reading.
             </p>
           </div>
-
-          <!-- Optional reset button for testing only: remove in production
-          <button class="btn" style="margin-top:10px;background:#1f2937;color:#fff;"
-                  onclick="resetTasks()">Reset tasks (testing)</button>
-          -->
         </div>
       </main>
     </div>
