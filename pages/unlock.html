@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Unlock Reading • AstroGate</title>
+  <link rel="stylesheet" href="../assets/css/base.css" />
+  <link rel="stylesheet" href="../assets/css/theme.css" />
+
+  <script>
+    // Track completed tasks (localStorage)
+    let completed = Number(localStorage.getItem("tasks_done") || 0);
+
+    function goToCPA() {
+      window.location.href =
+        "https://www.viral782.com/unlock/jyDakSOq"; // your live CPAlead locker
+    }
+
+    function markDone() {
+      completed++;
+      localStorage.setItem("tasks_done", completed);
+      location.reload();
+    }
+  </script>
+
+  <style>
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,215,0,0.25);
+      padding: 22px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .btn {
+      background: gold;
+      color: black;
+      padding: 12px 18px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+  </style>
+
+</head>
+
+<body class="sky-static">
+  <div class="container">
+
+    <h2>Complete Tasks to Unlock Your Reading</h2>
+
+    <div class="card">
+      <p><strong>Progress:</strong> <span id="progress"></span></p>
+
+      <script>
+        document.getElementById("progress").innerText =
+          completed + " / 3 tasks completed";
+      </script>
+
+      <div id="step-area"></div>
+
+      <script>
+        if (completed < 3) {
+          document.getElementById("step-area").innerHTML = `
+            <p>You must complete <strong>3 tasks</strong> to unlock your reading.</p>
+            <a class="btn" onclick="goToCPA()">Start Task ${completed + 1}</a>
+            <p style="margin-top:12px;color:gray;">After completing the task, click the button below.</p>
+            <a class="btn" style="background:#444;color:#fff" onclick="markDone()">I completed the task</a>
+          `;
+        } else {
+          document.getElementById("step-area").innerHTML = `
+            <p style="color:lightgreen;font-size:1.3rem;">🎉 All tasks completed!</p>
+            <a href="./reading.html" class="btn">Unlock Reading</a>
+          `;
+        }
+      </script>
+
+    </div>
+
+  </div>
+</body>
+</html>
