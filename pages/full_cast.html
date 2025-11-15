@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         --bg: #0d1b2a;
         --panel: #1b263b;
@@ -23,7 +24,6 @@
       .hint {
         color: var(--muted);
       }
-
       .card {
         background: var(--panel);
         border: 1px solid rgba(255, 255, 255, 0.12);
@@ -38,7 +38,6 @@
       .q-card i {
         opacity: 0.7;
       }
-
       .row-figs {
         display: flex;
         gap: 18px;
@@ -74,7 +73,6 @@
         font-size: 12px;
         color: #ffffffb3;
       }
-
       .btn {
         display: inline-flex;
         align-items: center;
@@ -89,26 +87,19 @@
         opacity: 0.6;
         cursor: not-allowed;
       }
-
-      /* Hide Save Chart button but keep logic intact */
       .btn-save {
         display: none !important;
       }
-
-      /* View Interpretation in gold */
       .btn-view {
         background: var(--gold);
         color: #0a0a0a;
       }
-
       .toolbar {
         display: flex;
         gap: 12px;
         justify-content: flex-start;
         flex-wrap: wrap;
       }
-
-      /* Modal base */
       .modal {
         position: fixed;
         inset: 0;
@@ -137,8 +128,6 @@
       .field {
         margin: 10px 0;
       }
-
-      /* Select / input styling: black dropdowns */
       .input,
       .select {
         width: 100%;
@@ -153,7 +142,6 @@
         background: #000;
         color: #fff;
       }
-
       .modal-actions {
         display: flex;
         gap: 10px;
@@ -166,16 +154,12 @@
         background: rgba(255, 255, 255, 0.06);
         border: 1px solid rgba(255, 255, 255, 0.15);
       }
-
-      /* Confirm & Continue buttons in gold */
       .pill.primary {
         background: var(--gold);
         color: #0a0a0a;
         border-color: var(--gold);
         font-weight: 700;
       }
-
-      /* Top bar mimic */
       .topbar {
         display: flex;
         align-items: center;
@@ -202,39 +186,23 @@
         </nav>
       </header>
 
-      <!-- AppBar actions -->
       <div class="topbar">
         <h1>Shield Chart</h1>
         <div class="top-actions">
           <a href="../index.html" title="Back to home">Home</a>
         </div>
       </div>
-
-      <!-- Question card -->
       <div class="card q-card">
         <i>❓</i>
         <p id="qtext" style="margin: 0"></p>
       </div>
-
-      <!-- Figures layout -->
       <div class="mt-2">
-        <!-- Row 1: T8..T1 (exact Flutter order) -->
         <div id="row1" class="row-figs mt-1"></div>
-
-        <!-- Row 2: T12..T9 -->
         <div id="row2" class="row-figs mt-2"></div>
-
-        <!-- Row 3: T14..T13 -->
         <div id="row3" class="row-figs mt-2"></div>
-
-        <!-- Row 4: T15 -->
         <div id="row4" class="row-figs mt-2"></div>
-
-        <!-- Row 5: T16 -->
         <div id="row5" class="row-figs mt-2"></div>
       </div>
-
-      <!-- Buttons -->
       <div class="toolbar mt-3">
         <button id="saveBtn" class="btn btn-save">💾 <span id="saveLabel">Save Chart</span></button>
         <button id="viewBtn" class="btn btn-view">
@@ -247,7 +215,6 @@
       </footer>
     </div>
 
-    <!-- Settings modal (must confirm before viewing interpretation) -->
     <div
       id="settingsModal"
       class="modal"
@@ -288,50 +255,33 @@
     </div>
 
     <script>
-      // -------------------- Utilities & State --------------------
+      // -------------------- Utilities & State (UNCHANGED) --------------------
       const qText = document.getElementById('qtext');
-
       const row1 = document.getElementById('row1');
       const row2 = document.getElementById('row2');
       const row3 = document.getElementById('row3');
       const row4 = document.getElementById('row4');
       const row5 = document.getElementById('row5');
-
       const saveBtn = document.getElementById('saveBtn');
       const saveLabel = document.getElementById('saveLabel');
       const viewBtn = document.getElementById('viewBtn');
       const viewLabel = document.getElementById('viewLabel');
-
       const settingsModal = document.getElementById('settingsModal');
       const langSel = document.getElementById('langSel');
       const relSel = document.getElementById('relSel');
       const cancelSettings = document.getElementById('cancelSettings');
       const confirmSettings = document.getElementById('confirmSettings');
 
-      let NAV_LOCK = false; // 🔒 prevent double "View Interpretation"
-      let SAVING = false; // 🔒 prevent double "Save Chart"
-
-      // Token → Latin name (same map as Flutter)
+      let NAV_LOCK = false;
+      let SAVING = false;
+      
       const LATIN_BY_TOKEN = {
-        1111: 'Via',
-        2222: 'Populus',
-        2211: 'Fortuna Major',
-        1122: 'Fortuna Minor',
-        2121: 'Acquisitio',
-        1212: 'Amissio',
-        2212: 'Albus',
-        2122: 'Rubeus',
-        1121: 'Puer',
-        1211: 'Puella',
-        2112: 'Coniunctio',
-        1221: 'Carcer',
-        2221: 'Tristitia',
-        1222: 'Laetitia',
-        2111: 'Caput Draconis',
-        1112: 'Cauda Draconis',
+        1111: 'Via', 2222: 'Populus', 2211: 'Fortuna Major', 1122: 'Fortuna Minor',
+        2121: 'Acquisitio', 1212: 'Amissio', 2212: 'Albus', 2122: 'Rubeus',
+        1121: 'Puer', 1211: 'Puella', 2112: 'Coniunctio', 1221: 'Carcer',
+        2221: 'Tristitia', 1222: 'Laetitia', 2111: 'Caput Draconis', 1112: 'Cauda Draconis',
       };
       const latinFromFig = (fig) => LATIN_BY_TOKEN[fig.join('')] || fig.join('');
-
       const combine = (a, b) => [0, 1, 2, 3].map((i) => ((a[i] + b[i]) % 2 === 0 ? 2 : 1));
 
       function figBox(fig, label) {
@@ -364,19 +314,18 @@
         return wrap;
       }
 
-      // --------------- Load data from casting step ---------------
+      // --------------- Load data from casting step (UNCHANGED) ---------------
       let payload = null;
       try {
         payload = JSON.parse(localStorage.getItem('astro_cast_payload') || 'null');
       } catch {}
       if (!payload || !Array.isArray(payload.mothers) || payload.mothers.length !== 4) {
-        // fallback UI
         document.body.insertAdjacentHTML(
           'beforeend',
           `<div class="container wrap"><div class="card mt-2" style="text-align:center">
           <p>Could not find your casting in this browser.</p>
           <a class="pill primary" href="./casting.html">Cast again</a>
-        </div></div>`
+          </div></div>`
         );
       }
 
@@ -385,7 +334,7 @@
       const selectedLanguageInit = payload?.language || 'en';
       qText.textContent = question;
 
-      // Build daughters, nieces, witnesses, judge, reconciler
+      // --- All chart calculation logic is UNCHANGED ---
       const daughters = [
         [mothers[0][0], mothers[1][0], mothers[2][0], mothers[3][0]],
         [mothers[0][1], mothers[1][1], mothers[2][1], mothers[3][1]],
@@ -402,60 +351,39 @@
       const judge = combine(witnesses[1], witnesses[0]);
       const reconciler = combine(judge, mothers[0]);
 
-      // ---------- Render (exact same order as your Flutter UI) ----------
-      // Row1: T8 T7 T6 T5 T4 T3 T2 T1
+      // ---------- Render logic is UNCHANGED ----------
       [
-        daughters[3],
-        daughters[2],
-        daughters[1],
-        daughters[0],
-        mothers[3],
-        mothers[2],
-        mothers[1],
-        mothers[0],
+        daughters[3], daughters[2], daughters[1], daughters[0],
+        mothers[3], mothers[2], mothers[1], mothers[0],
       ].forEach((f, i) =>
         row1.appendChild(figBox(f, ['T8', 'T7', 'T6', 'T5', 'T4', 'T3', 'T2', 'T1'][i]))
       );
-
-      // Row2: T12 T11 T10 T9
       [nieces[3], nieces[2], nieces[1], nieces[0]].forEach((f, i) =>
         row2.appendChild(figBox(f, ['T12', 'T11', 'T10', 'T9'][i]))
       );
-
-      // Row3: T14 T13
       [witnesses[1], witnesses[0]].forEach((f, i) =>
         row3.appendChild(figBox(f, ['T14', 'T13'][i]))
       );
-
-      // Row4: T15
       row4.appendChild(figBox(judge, 'T15'));
-
-      // Row5: T16
       row5.appendChild(figBox(reconciler, 'T16'));
 
-      // --------------- Save Chart (localStorage + faux cloud) ---------------
+      // --------------- Save Chart logic is UNTOUCHED ---------------
       async function saveChart() {
         if (SAVING) return;
         SAVING = true;
         saveBtn.disabled = true;
         saveLabel.textContent = 'Saving…';
-
         try {
           const mothersJson = JSON.stringify(mothers);
           localStorage.setItem('saved_mothers', mothersJson);
           localStorage.setItem('saved_question', question);
           localStorage.setItem('saved_language', selectedLanguageInit);
           localStorage.setItem('saved_date', new Date().toISOString());
-
-          // Store figure names like Flutter does
           const allFigures = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
           const figureNames = allFigures.map((f) => f.join(''));
-          // mimic FirebaseService.saveReading()
           const cloud = JSON.parse(localStorage.getItem('astro_readings') || '[]');
           cloud.push({ question, figures: figureNames, savedAt: Date.now() });
           localStorage.setItem('astro_readings', JSON.stringify(cloud));
-
-          // toast
           saveLabel.textContent = 'Saved!';
           setTimeout(() => {
             saveLabel.textContent = 'Save Chart';
@@ -470,7 +398,9 @@
       }
       saveBtn.addEventListener('click', saveChart);
 
-      // ------------------ Settings → Unlock (3 tasks) → reading.html ------------------
+      // ------------------ *** UPDATED SCRIPT LOGIC *** ------------------
+      // This section is now consistent with your other form pages.
+      
       function openSettings() {
         settingsModal.classList.add('show');
       }
@@ -483,6 +413,7 @@
         viewLabel.textContent = 'View Interpretation';
       });
 
+      // UPDATED: This now builds URL params and redirects to reading.html
       confirmSettings.addEventListener('click', () => {
         const lang = langSel.value;
         const rel = relSel.value;
@@ -492,42 +423,41 @@
         }
         closeSettings();
 
-        // Build names_with_houses (English Latin) – kept for reading.html
-        const houses = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
-        const namesWithHouses = houses.map((f, i) => ({ house: i + 1, name: latinFromFig(f) }));
+        // --- 1. Build URL Parameters ---
+        const params = new URLSearchParams();
+        params.set('topic', 'geomancy');
+        params.set('from', 'geomancy'); // For the "Ask Again" link
 
-        const interpPayload = {
-          language: lang,
-          religion: rel,
-          question,
-          names_with_houses: namesWithHouses,
-          figures: houses, // T1..T16
-          fromHistory: false,
-        };
-        localStorage.setItem('astro_interp_payload', JSON.stringify(interpPayload));
-        // 3-task requirement for this session
+        // Set primary data
+        // 'question' is from the outer scope, loaded from 'astro_cast_payload'
+        params.set('question', question); 
+        params.set('lang', lang);
+        params.set('religion', rel);
+
+        // --- 2. Pass the 4 Mothers ---
+        // The backend /api/reading will use these to regenerate the chart.
+        // 'mothers' is from the outer scope, loaded from 'astro_cast_payload'
         try {
-          localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
-          localStorage.removeItem('astrogate_tasks_done');
+           params.set('mothers', JSON.stringify(mothers));
         } catch (e) {
-          console.warn('localStorage failed', e);
+           console.error("Could not stringify mothers", e);
+           // This should not fail, but good to have.
         }
-
-        // 🔗 Go to central unlock page (shows CPAlead, enforces 3 tasks)
-        const qs = new URLSearchParams({ topic: 'geomancy' });
-        window.location.href = './unlock.html?' + qs.toString();
+        
+        // --- 3. Redirect to the locked reading page ---
+        // This is the same flow as all your other form pages.
+        window.location.href = './reading.html?' + params.toString();
       });
 
+      // This logic is UNCHANGED
       viewBtn.addEventListener('click', () => {
         if (NAV_LOCK) return;
         NAV_LOCK = true;
         viewBtn.disabled = true;
         viewLabel.textContent = 'Opening…';
-        // ALWAYS open settings first (same rule as app)
         langSel.value = selectedLanguageInit || 'en';
         relSel.value = '';
         openSettings();
-        // re-enable if user cancels inside modal
         setTimeout(() => {
           viewBtn.disabled = false;
         }, 50);
