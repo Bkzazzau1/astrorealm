@@ -11,13 +11,11 @@
 
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
-      /* Ensure form controls prefer dark popups */
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
-
       .form-grid {
         display: grid;
         gap: 12px;
@@ -28,13 +26,11 @@
           grid-template-columns: 1fr;
         }
       }
-
       .field {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
-
       .field input,
       .field select,
       .field textarea {
@@ -44,8 +40,6 @@
         padding: 10px 12px;
         color: var(--text);
       }
-
-      /* 🔒 Force black dropdown for <select> and its options */
       .field select,
       .field select:focus {
         background-color: #0a0b10;
@@ -65,7 +59,6 @@
         box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.35);
         border-color: var(--gold);
       }
-      /* Optional chevron */
       .field select {
         background-image: linear-gradient(to bottom, transparent 0%, transparent 100%),
           url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4af37'><path d='M4 6l4 4 4-4'/></svg>");
@@ -74,7 +67,6 @@
         background-size: 16px 16px, 16px 16px;
         padding-right: 2.2rem;
       }
-
       .section-title {
         margin: 16px 0 8px;
         font-size: 1.05rem;
@@ -116,10 +108,9 @@
 
       <h1 class="mt-2">Love Reading 💖</h1>
       <p class="hint">
-        Complete <strong>three</strong> tasks to unlock your personal love reading.
+        Fill out the form to continue to your personal love reading.
       </p>
 
-      <!-- Preset prompts -->
       <div class="grid mt-2" aria-label="Questions" id="presetGrid">
         <button
           class="card clickable"
@@ -147,7 +138,6 @@
         </button>
       </div>
 
-      <!-- Input Form -->
       <form class="card mt-2" id="loveForm" autocomplete="on" novalidate>
         <div class="section-title">Seeker Details</div>
         <div class="form-grid">
@@ -207,15 +197,9 @@
         <div class="error" id="formError"></div>
 
         <div class="unlock-wrap mt-2">
-          <!-- Go to central unlock page for 3-task flow -->
-          <a
-            href="./unlock.html?topic=love"
-            id="unlockBtn"
-            class="unlock-btn"
-            role="button"
-          >
-            Continue to Unlock (3 Tasks)
-          </a>
+          <button id="submitBtn" class="unlock-btn" role="button">
+            Submit & Get Reading
+          </button>
           <span class="hint"
             >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</span
           >
@@ -231,7 +215,7 @@
       (function () {
         const presetGrid = document.getElementById('presetGrid');
         const qBox = document.getElementById('question');
-        const unlockBtn = document.getElementById('unlockBtn');
+        const submitBtn = document.getElementById('submitBtn'); // Changed from unlockBtn
         const errorEl = document.getElementById('formError');
 
         // Autofill question from preset card
@@ -242,61 +226,72 @@
           qBox.focus();
         });
 
+        // Helper function from your original script
         function hasEither(dob, mom) {
           return !!dob || (mom && mom.trim().length >= 2);
         }
 
+        // Get value helper
+        function val(id) {
+           return (document.getElementById(id)?.value || '').trim();
+        }
+
         // Save payload + reset task progress before leaving
-        unlockBtn.addEventListener('click', (e) => {
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Stop the button's default action
           errorEl.style.display = 'none';
-          const seekerName = document.getElementById('seekerName').value.trim();
-          const seekerDob = document.getElementById('seekerDob').value;
-          const seekerMother = document.getElementById('seekerMother').value.trim();
-          const partnerName = document.getElementById('partnerName').value.trim();
-          const partnerDob = document.getElementById('partnerDob').value;
-          const partnerMother = document.getElementById('partnerMother').value.trim();
-          const language = document.getElementById('language').value;
+          
+          // --- 1. Validation (from your original script) ---
+          const seekerName = val('seekerName');
+          const seekerDob = val('seekerDob');
+          const seekerMother = val('seekerMother');
+          const partnerName = val('partnerName');
+          const partnerDob = val('partnerDob');
+          const partnerMother = val('partnerMother');
+          const language = val('language');
+          const question = val('question'); // Can be empty
 
           if (!seekerName || !partnerName || !language) {
-            e.preventDefault();
-            errorEl.textContent = 'Please fill names and choose a language.';
+            errorEl.textContent = 'Please fill both names and choose a language.';
             errorEl.style.display = 'block';
             return;
           }
           if (!hasEither(seekerDob, seekerMother)) {
-            e.preventDefault();
             errorEl.textContent =
               "For the seeker, provide either a Date of Birth or the mother's first name.";
             errorEl.style.display = 'block';
             return;
           }
           if (!hasEither(partnerDob, partnerMother)) {
-            e.preventDefault();
             errorEl.textContent =
               "For the partner, provide either a Date of Birth or the mother's first name.";
             errorEl.style.display = 'block';
             return;
           }
 
-          const payload = {
-            topic: 'love',
-            question: qBox.value.trim(),
-            language,
-            seeker: { name: seekerName, dob: seekerDob || null, mother: seekerMother || null },
-            partner: { name: partnerName, dob: partnerDob || null, mother: partnerMother || null },
-            createdAt: new Date().toISOString(),
-          };
+          // --- 2. Build URL Parameters ---
+          const params = new URLSearchParams();
+          params.set('topic', 'love');
+          params.set('from', 'love'); // For the "Ask Again" link
+          params.set('lang', language);
 
-          try {
-            localStorage.setItem('astroReading', JSON.stringify(payload));
-            localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
-            localStorage.removeItem('astrogate_tasks_done');
-          } catch (err) {
-            console.warn('localStorage failed', err);
-          }
-          // allow navigation to unlock.html after saving
+          // Use the custom question, or create a default one
+          params.set('question', question || `Love reading for ${seekerName} and ${partnerName}`);
+
+          // Set seeker data (for reading.html display)
+          params.set('name', seekerName);
+          if (seekerDob) params.set('dob', seekerDob);
+          if (seekerMother) params.set('mother', seekerMother);
+          
+          // Set partner data (will be passed to the API)
+          params.set('partner_name', partnerName);
+          if (partnerDob) params.set('partner_dob', partnerDob);
+          if (partnerMother) params.set('partner_mother', partnerMother);
+          
+          // --- 3. Redirect to the locked reading page ---
+          location.href = './reading.html?' + params.toString();
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
