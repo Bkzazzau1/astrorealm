@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../assets/css/theme.css" />
 
     <script type="text/javascript">var lck = false;</script><script type="text/javascript" src="https://quartzfiles.com/script_include.php?id=1855685"></script><script type="text/javascript">if(!lck){top.location = 'https://quartzfiles.com/help/ablk.php?lkt=4'; }</script>
+    
     <style>
       /* ... [All your CSS styles remain unchanged] ... */
       .wrap {
@@ -131,21 +132,16 @@
 
       <main class="wrap">
         <section class="card">
-
           <p class="eyebrow">Unlocked reading</p>
           <h1 id="reading-title" class="reading-title">Your cosmic message</h1>
           <p id="reading-meta" class="meta"></p>
-
           <div id="pill-row" class="pill-row"></div>
-
           <div id="reading-output" class="reading-body skeleton"></div>
           <div id="reading-error" class="error-box"></div>
-
           <div class="actions">
             <a id="ask-again-link" href="./topics.html" class="btn-main">Ask another question</a>
             <a href="../index.html" class="btn-ghost">Back to home</a>
           </div>
-
           <p class="footer-note">
             Readings are for guidance and reflection only. No medical, legal, gambling or guaranteed financial outcomes.
           </p>
@@ -157,6 +153,7 @@
       (function () {
         const params = new URLSearchParams(location.search);
 
+        // --- 1. Get Base Parameters (unchanged) ---
         const topic = (params.get("topic") || "destiny").toLowerCase();
         const question = params.get("question") || params.get("q") || "";
         const name = params.get("name") || "";
@@ -165,7 +162,8 @@
         const lang = params.get("lang") || "en";
         const religion = params.get("religion") || "";
         const from = params.get("from") || topic;
-
+        
+        // --- 2. Find UI Elements (unchanged) ---
         const titleEl = document.getElementById("reading-title");
         const metaEl = document.getElementById("reading-meta");
         const pillRow = document.getElementById("pill-row");
@@ -173,63 +171,54 @@
         const errEl = document.getElementById("reading-error");
         const askLink = document.getElementById("ask-again-link");
 
-        // Friendly names
+        // --- 3. Set up UI (unchanged) ---
         const topicLabelMap = {
-          zodiac: "Zodiac",
-          palmistry: "Palmistry",
-          geomancy: "Geomancy",
-          destiny: "Destiny",
-          weekly: "Weekly Guidance",
-          love: "Love",
-          money: "Money",
-          career: "Career",
-          astrosport: "Astro Sport",
+          zodiac: "Zodiac", palmistry: "Palmistry", geomancy: "Geomancy",
+          destiny: "Destiny", weekly: "Weekly Guidance", love: "Love",
+          money: "Money", career: "Career", astrosport: "Astro Sport",
         };
-
         const niceTopic = topicLabelMap[topic] || topic;
-
-        // Set title
         titleEl.textContent = `Your ${niceTopic} Reading`;
-
-        // Show meta
         metaEl.innerHTML = `Question: <strong>${escapeHtml(question)}</strong>` +
           (name ? ` • Name: <strong>${escapeHtml(name)}</strong>` : "");
-
-        // Pills
+        
+        // --- 4. Add Pills (unchanged) ---
         addPill(`Topic: ${niceTopic}`);
         addPill(`Language: ${lang.toUpperCase()}`);
         if (dob) addPill(`DOB: ${dob}`);
         if (mother) addPill(`Mother: ${mother}`);
         if (religion) addPill(`Religion: ${religion}`);
+        
+        // Add pills for other topics if they exist in URL
+        if (params.get("focusLine")) addPill(`Focus: ${params.get("focusLine")}`);
+        if (params.get("partner_name")) addPill(`Partner: ${params.get("partner_name")}`);
 
-        // Back link to correct page
+        // --- 5. Back Link (unchanged) ---
         const map = {
-          zodiac: './zodiac.html',
-          palmistry: './palmistry.html',
-          geomancy: './geomancy.html',
-          weekly: './weekly.html',
-          love: './love.html',
-          money: './money.html',
-          career: './career.html',
-          destiny: './destiny.html',
-          astrosport: './astrosport.html',
+          zodiac: './zodiac.html', palmistry: './palmistry.html', geomancy: './geomancy.html',
+          weekly: './weekly.html', love: './love.html', money: './money.html',
+          career: './career.html', destiny: './destiny.html', astrosport: './astrosport.html',
         };
+        // This is why we passed 'from=' in all our forms
         askLink.href = map[from] || './topics.html';
 
-        // FETCH OPENAI FROM NETLIFY
+        // --- 6. *** UPDATED: Build API Payload *** ---
+        // This now gathers ALL parameters from the URL and sends them.
+        // Your API can now pick what it needs based on 'topic'.
+        const apiPayload = {};
+        for (const [key, value] of params.entries()) {
+            apiPayload[key] = value;
+        }
+        
+        // Manually add 'topic' in case it wasn't in the URL (as a fallback)
+        apiPayload.topic = topic;
+
+        // --- 7. Fetch API (Now sends the universal payload) ---
         fetch('/api/reading', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            topic,
-            question,
-            name,
-            dob,
-            mother,
-            lang,
-            religion,
-            source: from
-          })
+          // Send the entire payload, which includes 'names_with_houses' etc.
+          body: JSON.stringify(apiPayload) 
         })
         .then(res => res.json())
         .then(data => {
@@ -238,17 +227,20 @@
           showReading(text);
         })
         .catch(err => {
+          console.error(err); // Log the actual error
           errEl.style.display = "block";
           errEl.textContent = "Unable to reach reading server. Showing fallback.";
           showReading(buildFallback());
         });
 
+        // --- 8. Helper Functions (unchanged) ---
         function showReading(t) {
           outEl.classList.remove("skeleton");
           outEl.textContent = t;
         }
 
         function addPill(txt) {
+          if (!txt) return; // Don't add empty pills
           const div = document.createElement("div");
           div.className = "pill";
           div.textContent = txt;
@@ -256,6 +248,7 @@
         }
 
         function escapeHtml(s) {
+          if (!s) return '';
           return s.replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
         }
 
@@ -268,8 +261,7 @@ Your inner intuition is preparing you for a breakthrough.
 
 Continue taking small steps in the direction of your purpose.`;
         }
-
       })();
     </script>
-  </body>
+    </body>
 </html>
