@@ -350,6 +350,10 @@
       const witnesses = [combine(nieces[1], nieces[0]), combine(nieces[3], nieces[2])];
       const judge = combine(witnesses[1], witnesses[0]);
       const reconciler = combine(judge, mothers[0]);
+      
+      // *** This is the array of all 16 figures your API needs ***
+      const allFiguresRaw = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
+
 
       // ---------- Render logic is UNCHANGED ----------
       [
@@ -374,16 +378,17 @@
         saveBtn.disabled = true;
         saveLabel.textContent = 'Saving…';
         try {
+          // [Your original save logic... unchanged]
           const mothersJson = JSON.stringify(mothers);
           localStorage.setItem('saved_mothers', mothersJson);
           localStorage.setItem('saved_question', question);
           localStorage.setItem('saved_language', selectedLanguageInit);
           localStorage.setItem('saved_date', new Date().toISOString());
-          const allFigures = [...mothers, ...daughters, ...nieces, ...witnesses, judge, reconciler];
-          const figureNames = allFigures.map((f) => f.join(''));
+          const figureNames = allFiguresRaw.map((f) => f.join(''));
           const cloud = JSON.parse(localStorage.getItem('astro_readings') || '[]');
           cloud.push({ question, figures: figureNames, savedAt: Date.now() });
           localStorage.setItem('astro_readings', JSON.stringify(cloud));
+          
           saveLabel.textContent = 'Saved!';
           setTimeout(() => {
             saveLabel.textContent = 'Save Chart';
@@ -433,17 +438,35 @@
         params.set('question', question); 
         params.set('lang', lang);
         params.set('religion', rel);
-
-        // --- 2. Pass the 4 Mothers ---
-        // The backend /api/reading will use these to regenerate the chart.
-        // 'mothers' is from the outer scope, loaded from 'astro_cast_payload'
-        try {
-           params.set('mothers', JSON.stringify(mothers));
-        } catch (e) {
-           console.error("Could not stringify mothers", e);
-           // This should not fail, but good to have.
-        }
         
+        // --- 2. Build and add the 16 figures as requested ---
+        // 'allFiguresRaw' was calculated above when the chart was built
+        const namesWithHouses = allFiguresRaw.map((fig, i) => {
+          // We map T1..T8, then T9..T12, etc. This order matches your render.
+          // This is complex, so let's use the Latin names as requested.
+          // Your original script had the correct `names_with_houses` logic:
+          const flutterOrderFigs = [
+             mothers[0], mothers[1], mothers[2], mothers[3],
+             daughters[0], daughters[1], daughters[2], daughters[3],
+             nieces[0], nieces[1], nieces[2], nieces[3],
+             witnesses[0], witnesses[1],
+             judge,
+             reconciler
+          ];
+          const namesWithHousesList = flutterOrderFigs.map((f, i) => ({
+             house: i + 1,
+             name: latinFromFig(f)
+          }));
+          return namesWithHousesList;
+        })[0]; // Get the list from the map
+        
+        // Add the 16 figures to the URL
+        try {
+           params.set('names_with_houses', JSON.stringify(namesWithHouses));
+        } catch (e) {
+           console.error("Could not stringify names_with_houses", e);
+        }
+
         // --- 3. Redirect to the locked reading page ---
         // This is the same flow as all your other form pages.
         window.location.href = './reading.html?' + params.toString();
