@@ -12,8 +12,7 @@
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
 
-    <script type="text/javascript">var lck = false;</script><script type="text/javascript" src="https://quartzfiles.com/script_include.php?id=1855685"></script><script type="text/javascript">if(!lck){top.location = 'https://quartzfiles.com/help/ablk.php?lkt=4'; }</script>
-    
+    <script type="text/javascript" src="https://quartzfiles.com/script_include.php?id=1855698"></script>
     <style>
       /* ... [All your CSS styles remain unchanged] ... */
       .wrap {
@@ -202,22 +201,17 @@
         // This is why we passed 'from=' in all our forms
         askLink.href = map[from] || './topics.html';
 
-        // --- 6. *** UPDATED: Build API Payload *** ---
-        // This now gathers ALL parameters from the URL and sends them.
-        // Your API can now pick what it needs based on 'topic'.
+        // --- 6. Build API Payload (unchanged) ---
         const apiPayload = {};
         for (const [key, value] of params.entries()) {
             apiPayload[key] = value;
         }
-        
-        // Manually add 'topic' in case it wasn't in the URL (as a fallback)
-        apiPayload.topic = topic;
+        apiPayload.topic = topic; // Ensure topic is set
 
-        // --- 7. Fetch API (Now sends the universal payload) ---
+        // --- 7. Fetch API (unchanged) ---
         fetch('/api/reading', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Send the entire payload, which includes 'names_with_houses' etc.
           body: JSON.stringify(apiPayload) 
         })
         .then(res => res.json())
@@ -227,7 +221,7 @@
           showReading(text);
         })
         .catch(err => {
-          console.error(err); // Log the actual error
+          console.error(err); 
           errEl.style.display = "block";
           errEl.textContent = "Unable to reach reading server. Showing fallback.";
           showReading(buildFallback());
@@ -240,7 +234,7 @@
         }
 
         function addPill(txt) {
-          if (!txt) return; // Don't add empty pills
+          if (!txt) return; 
           const div = document.createElement("div");
           div.className = "pill";
           div.textContent = txt;
@@ -263,5 +257,5 @@ Continue taking small steps in the direction of your purpose.`;
         }
       })();
     </script>
-    </body>
+  </body>
 </html>
