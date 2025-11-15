@@ -11,8 +11,8 @@
 
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       .wrap {
         max-width: 940px;
         margin: 0 auto;
@@ -44,12 +44,10 @@
         color: #fff;
         outline: none;
       }
-
       select option {
         background-color: #000;
         color: #fff;
       }
-
       .hint {
         color: var(--muted);
       }
@@ -63,7 +61,6 @@
           grid-template-columns: 1fr;
         }
       }
-
       .pill {
         display: inline-flex;
         align-items: center;
@@ -75,7 +72,6 @@
         color: #ffd700;
         font-weight: 600;
       }
-
       .unlock-btn {
         display: inline-block;
         width: 100%;
@@ -86,8 +82,11 @@
         color: #1a1200;
         font-weight: 800;
         text-decoration: none;
+        /* Add button styles */
+        cursor: pointer;
+        font-family: inherit;
+        font-size: inherit;
       }
-
       .err {
         color: #ffb3b3;
         font-size: 0.95rem;
@@ -124,13 +123,11 @@
           <span class="pill" id="signPreview">Sign: —</span>
         </div>
 
-        <!-- Name -->
         <div class="field">
           <label for="name">Your Name</label>
           <input type="text" id="name" placeholder="e.g., Ibrahim" />
         </div>
 
-        <!-- DOB + mother -->
         <div class="row">
           <div class="field">
             <label for="dob">Date of Birth (if known)</label>
@@ -142,7 +139,6 @@
           </div>
         </div>
 
-        <!-- Question + Language -->
         <div class="row">
           <div class="field">
             <label for="question">Your Question</label>
@@ -164,11 +160,10 @@
 
         <div id="err" class="err"></div>
 
-        <!-- Unlock -->
         <div class="field">
-          <a href="./unlock.html?topic=zodiac" id="unlock" class="unlock-btn">
-            Continue to Unlock (3 Tasks)
-          </a>
+          <button id="submitBtn" class="unlock-btn">
+            Submit & Get Reading
+          </button>
         </div>
         <small class="hint">
           Compliance: No medical, legal, gambling, or guaranteed financial outcomes.
@@ -181,6 +176,7 @@
     </div>
 
     <script>
+      // --- All your sign logic remains unchanged ---
       const SIGNS = [
         { key: "Aries", glyph: "♈", start: [3, 21], end: [4, 19] },
         { key: "Taurus", glyph: "♉", start: [4, 20], end: [5, 20] },
@@ -224,20 +220,25 @@
       function val(id) {
         return document.getElementById(id)?.value.trim() || "";
       }
-
+      
+      // --- This is the updated part ---
       document.addEventListener("DOMContentLoaded", () => {
         const dobEl = document.getElementById("dob");
-        const unlockBtn = document.getElementById("unlock");
+        const submitBtn = document.getElementById("submitBtn"); // Changed from unlockBtn
 
+        // Sign preview logic (unchanged)
         dobEl.addEventListener("input", () => {
           const s = signFromDate(dobEl.value);
           document.getElementById("signPreview").textContent =
             "Sign: " + (s ? `${s.key} ${s.glyph}` : "—");
         });
 
-        unlockBtn.addEventListener("click", (e) => {
+        // Click handler
+        submitBtn.addEventListener("click", (e) => {
+          e.preventDefault(); // Stop the button's default action
           showError("");
-
+          
+          // --- 1. Validation (from your original script) ---
           const name = val("name");
           const dob = val("dob");
           const mother = val("mother");
@@ -245,53 +246,48 @@
           const lang = val("lang");
 
           if (!name) {
-            e.preventDefault();
             return showError("Please enter your name.");
           }
           if (!dob && !mother) {
-            e.preventDefault();
             return showError("Provide DOB or mother’s first name.");
           }
           if (!question) {
-            e.preventDefault();
             return showError("Please write your question.");
           }
           if (!lang) {
-            e.preventDefault();
             return showError("Select your answer language.");
           }
+          
+          // --- 2. Build URL Parameters ---
+          const params = new URLSearchParams();
+          params.set('topic', 'zodiac');
+          params.set('from', 'zodiac'); // For the "Ask Again" link
 
-          let sign = null,
-            glyph = "";
+          // Set primary data
+          params.set('question', question);
+          params.set('lang', lang);
+          params.set('name', name);
+          
+          // Set seeker data
+          if (dob) {
+             params.set('dob', dob);
+          } else if (mother) {
+             params.set('mother', mother);
+          }
+          
+          // Add sign if we detected it
           if (dob) {
             const s = signFromDate(dob);
             if (s) {
-              sign = s.key;
-              glyph = s.glyph;
+              params.set('sign', s.key);
             }
           }
 
-          const payload = {
-            topic: "zodiac",
-            name,
-            dob: dob || null,
-            mother: dob ? null : mother || null,
-            sign,
-            glyph,
-            question,
-            lang,
-            createdAt: new Date().toISOString()
-          };
-
-          try {
-            localStorage.setItem("astroReading", JSON.stringify(payload));
-            localStorage.setItem("astroTaskProgress", JSON.stringify({ required: 3, done: 0 }));
-            localStorage.removeItem("astrogate_tasks_done");
-          } catch (err) {
-            console.warn("localStorage failed", err);
-          }
+          // --- 3. Redirect to the locked reading page ---
+          // The reading.html page will lock, then read these params
+          location.href = './reading.html?' + params.toString();
         });
       });
     </script>
-  </body>
+    </body>
 </html>
