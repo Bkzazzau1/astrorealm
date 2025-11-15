@@ -8,13 +8,14 @@
       name="description"
       content="Career & Purpose readings via Zodiac or Horary. Complete three tasks to unlock."
     />
+
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
-      /* ... [All your CSS styles remain unchanged] ... */
       .tabs {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -290,7 +291,7 @@
             <select id="hTz">
               <option value="">Auto/Local</option>
               <option value="UTC-1">UTC-1</option>
-              <option value."UTC">UTC</option>
+              <option value="UTC">UTC</option>
               <option value="UTC+1">UTC+1</option>
               <option value="UTC+2">UTC+2</option>
               <option value="UTC+3">UTC+3</option>
@@ -333,7 +334,7 @@
               <option value="en">English</option>
               <option value="ha">Hausa</option>
               <option value="ar">Arabic</option>
-              <option value"fr">French</option>
+              <option value="fr">French</option>
               <option value="es">Spanish</option>
               <option value="hi">Hindi</option>
             </select>
@@ -349,14 +350,9 @@
       <div class="error" id="formError"></div>
 
       <div class="unlock-wrap mt-2">
-        <a
-          href="./reading.html"
-          id="unlockBtn"
-          class="unlock-btn"
-          role="button"
-        >
+        <button id="submitBtn" class="unlock-btn" role="button">
           Submit & Get Reading
-        </a>
+        </button>
         <span class="hint"
           >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</span
         >
@@ -375,7 +371,7 @@
         const panelZ = document.getElementById('panelZodiac');
         const panelH = document.getElementById('panelHorary');
         const errorEl = document.getElementById('formError');
-        const unlockBtn = document.getElementById('unlockBtn');
+        const submitBtn = document.getElementById('submitBtn'); // Changed from unlockBtn
 
         function setTab(which) {
           const isZ = which === 'zodiac';
@@ -389,7 +385,7 @@
         tabZ.addEventListener('click', () => setTab('zodiac'));
         tabH.addEventListener('click', () => setTab('horary'));
 
-        // Presets fill the active question box
+        // Presets
         const presetGrid = document.getElementById('presetGrid');
         const zQ = document.getElementById('zQuestion');
         const hQ = document.getElementById('hQuestion');
@@ -412,16 +408,22 @@
           return !!a || (b && b.trim().length >= 2);
         }
 
-        // Save + go
-        unlockBtn.addEventListener('click', (e) => {
+        // --- NEW: Submit logic ---
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Stop the default action
           errorEl.style.display = 'none';
 
-          const usingZodiac = !panelZ.classList.contains('hidden'); // true if Zodiac tab visible
+          const params = new URLSearchParams();
+          params.set('from', 'career'); // To link back
+          params.set('topic', 'career');
+
+          const usingZodiac = !panelZ.classList.contains('hidden');
+
           if (usingZodiac) {
+            // --- Zodiac Validation ---
             const question = val('zQuestion');
             const language = val('zLang');
             if (!question || !language) {
-              e.preventDefault();
               errorEl.textContent = 'For Zodiac: fill your question and choose a language.';
               errorEl.style.display = 'block';
               return;
@@ -429,96 +431,46 @@
             const dob = val('zDob');
             const mother = val('zMother');
             if (!either(dob, mother)) {
-              e.preventDefault();
               errorEl.textContent =
                 "Provide Date of Birth or your mother's first name (if DOB unknown).";
               errorEl.style.display = 'block';
               return;
             }
 
-            const payload = {
-              topic: 'career',
-              method: 'zodiac',
-              language,
-              question,
-              seeker: {
-                name: val('zName') || null,
-                dob: dob || null,
-                tob: val('zTob') || null,
-                birthplace: val('zBirthplace') || null,
-                mother: mother || null,
-              },
-              notes: val('zNotes') || null,
-              createdAt: new Date().toISOString(),
-            };
+            // --- Build Zodiac URL ---
+            params.set('question', question);
+            params.set('lang', language);
+            if (val('zName')) params.set('name', val('zName'));
+            if (dob) params.set('dob', dob);
+            if (mother) params.set('mother', mother);
+            // We don't send tob or birthplace as the new reading.html doesn't use them
 
-            try {
-              localStorage.setItem('astroReading', JSON.stringify(payload));
-              localStorage.removeItem('astrogate_tasks_done'); // Kept this from your original code
-            } catch (err) {
-              console.warn('localStorage failed', err);
-              e.preventDefault(); // Stop navigation if storage fails
-              errorEl.textContent = 'Error saving data. Please enable localStorage/cookies.';
-              errorEl.style.display = 'block';
-            }
           } else {
-            // Horary branch
+            // --- Horary Validation ---
             const question = val('hQuestion');
             const language = val('hLang');
             const city = val('hCity');
             if (!question || !language || !city) {
-              e.preventDefault();
               errorEl.textContent = 'For Horary: fill your question, city/country, and language.';
               errorEl.style.display = 'block';
               return;
             }
-
-            const anchor =
-              (document.querySelector('input[name="hAnchor"]:checked') || {}).value || 'now';
-            let eventISO = null;
-            const eventDate = val('hEventDate');
-            const eventTime = val('hEventTime');
-            if (anchor === 'event') {
-              if (!eventDate || !eventTime) {
-                e.preventDefault();
-                errorEl.textContent = 'For event anchor, provide both Event Date and Event Time.';
-                errorEl.style.display = 'block';
-                return;
-              }
-              const dt = new Date(`${eventDate}T${eventTime}`);
-              if (!isNaN(dt.getTime())) eventISO = dt.toISOString();
-            }
-
-            const payload = {
-              topic: 'career',
-              method: 'horary',
-              language,
-              question,
-              anchor, // 'now' | 'event'
-              location: { cityCountry: city, timezone: val('hTz') || null },
-              event:
-                anchor === 'event' ? { date: eventDate, time: eventTime, iso: eventISO } : null,
-              seeker: {
-                name: val('hName') || null,
-                dob: val('hDob') || null,
-                mother: val('hMother') || null,
-              },
-              notes: val('hNotes') || null,
-              createdAt: new Date().toISOString(),
-            };
-
-            try {
-              localStorage.setItem('astroReading', JSON.stringify(payload));
-              localStorage.removeItem('astrogate_tasks_done'); // Kept this from your original code
-            } catch (err) {
-              console.warn('localStorage failed', err);
-              e.preventDefault(); // Stop navigation if storage fails
-              errorEl.textContent = 'Error saving data. Please enable localStorage/cookies.';
-              errorEl.style.display = 'block';
-            }
+            // Note: The new reading.html doesn't use anchor, event time, etc.
+            // We will only send what it *does* use.
+            
+            // --- Build Horary URL ---
+            params.set('question', question);
+            params.set('lang', language);
+            if (val('hName')) params.set('name', val('hName'));
+            if (val('hDob')) params.set('dob', val('hDob'));
+            if (val('hMother')) params.set('mother', val('hMother'));
           }
+
+          // --- Redirect to the reading page with all data in the URL ---
+          location.href = './reading.html?' + params.toString();
+
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
