@@ -11,8 +11,8 @@
 
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
@@ -27,13 +27,11 @@
         white-space: nowrap;
         border: 0;
       }
-
       .field {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
-
       select,
       textarea,
       input[type='file'],
@@ -46,13 +44,10 @@
         padding: 10px 12px;
         outline: none;
       }
-
       textarea {
         min-height: 120px;
         resize: vertical;
       }
-
-      /* Dark dropdown styling */
       select,
       select:focus {
         background-color: #0a0b10;
@@ -77,7 +72,6 @@
         background-size: 16px 16px;
         padding-right: 2.2rem;
       }
-
       .center {
         text-align: center;
       }
@@ -90,35 +84,11 @@
       .mt-3 {
         margin-top: 1.6rem;
       }
-
-      .preview-frame {
-        max-width: 320px;
-        border-radius: 12px;
-        border: 1px solid rgba(212, 175, 55, 0.25);
-        display: inline-block;
-        padding: 10px;
-        opacity: 0.85;
-      }
-
-      /* file button */
-      input[type='file']::-webkit-file-upload-button,
-      input[type='file']::file-selector-button {
-        background: linear-gradient(90deg, #cfb053, #a67c00);
-        color: #140f02;
-        font-weight: 700;
-        border: none;
-        border-radius: 10px;
-        padding: 8px 12px;
-        margin-right: 10px;
-        cursor: pointer;
-      }
-
       .grid-auto {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 12px;
       }
-
       .error {
         color: #ffb4b4;
         font-size: 0.9rem;
@@ -143,12 +113,10 @@
 
       <h1 class="mt-2">Palmistry 🔮</h1>
       <p class="hint">
-        Upload a clear photo of your palm, choose your line, ask your question, then
-        <strong>complete three tasks</strong> to unlock your reading.  
-        <br />Your image never leaves your device.
+        Answer the questions about your palm, then
+        <strong>continue to unlock</strong> your reading.
       </p>
 
-      <!-- Palmistry Intake -->
       <section class="card mt-2">
         <form id="palmForm" novalidate>
           <div class="grid-auto">
@@ -208,28 +176,12 @@
             ></textarea>
           </label>
 
-          <div class="grid mt-2" style="grid-template-columns: 1fr">
-            <label class="center field">
-              <span>Palm photo <span style="color: var(--gold)">*</span></span>
-              <input id="handPhoto" type="file" accept="image/*" />
-            </label>
-
-            <div class="center mt-1">
-              <div class="preview-frame">
-                <small style="color:#cfcfe6">
-                  Choose a clear palm image. The preview shows in your file picker.
-                </small>
-              </div>
-            </div>
-          </div>
-
           <div class="error" id="formError"></div>
 
           <div class="mt-2 center">
-            <!-- 🔥 NEW UNLOCK FLOW (Unified system) -->
-            <a href="./unlock.html?topic=palmistry" id="unlockBtn" class="unlock-btn">
-              Continue to Unlock (3 Tasks)
-            </a>
+            <button id="submitBtn" class="unlock-btn" role="button">
+              Submit & Get Reading
+            </button>
           </div>
 
           <p class="hint center mt-1">
@@ -238,7 +190,6 @@
         </form>
       </section>
 
-      <!-- Quick palmistry shortcuts -->
       <h2 class="mt-3">Quick questions</h2>
       <div class="grid mt-1">
         <a class="card" href="./ask.html">
@@ -259,24 +210,22 @@
 
     <script>
       (function () {
-        const unlockBtn = document.getElementById('unlockBtn');
+        const submitBtn = document.getElementById('submitBtn'); // Changed from unlockBtn
         const errorEl = document.getElementById('formError');
 
         function val(id) {
           return (document.getElementById(id)?.value || '').trim();
         }
 
-        unlockBtn.addEventListener('click', (e) => {
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Stop the button's default action
           errorEl.style.display = 'none';
 
-          const handSide = val('handSide') || 'right';
-          const dominant = val('dominant') || 'dominant';
-          const focusLine = val('focusLine') || 'life';
+          // --- 1. Validation ---
           const question = val('question');
           const language = val('language');
-          const seekerName = val('seekerName') || null;
-          const fileInput = document.getElementById('handPhoto');
-          const file = fileInput?.files?.[0];
+          
+          // Removed file check
 
           if (!question || !language) {
             e.preventDefault();
@@ -284,39 +233,31 @@
             errorEl.style.display = 'block';
             return;
           }
+          
+          // File check is no longer needed
 
-          if (!file) {
-            e.preventDefault();
-            errorEl.textContent = 'Please choose a clear palm photo before continuing.';
-            errorEl.style.display = 'block';
-            return;
-          }
+          // --- 2. Build URL Parameters ---
+          const params = new URLSearchParams();
+          params.set('topic', 'palmistry');
+          params.set('from', 'palmistry'); // For the "Ask Again" link
 
-          const payload = {
-            topic: 'palmistry',
-            method: 'palmistry',
-            question,
-            language,
-            seeker: { name: seekerName },
-            palm: {
-              handSide,
-              dominant,
-              focusLine,
-              hasPhoto: true,
-              fileName: file.name
-            },
-            createdAt: new Date().toISOString()
-          };
+          // Set primary data
+          params.set('question', question);
+          params.set('lang', language);
+          
+          // Set seeker data (if provided)
+          if (val('seekerName')) params.set('name', val('seekerName'));
 
-          try {
-            localStorage.setItem('astroReading', JSON.stringify(payload));
-            localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
-            localStorage.removeItem('astrogate_tasks_done'); // reset tasks
-          } catch (err) {
-            console.warn('localStorage failed', err);
-          }
+          // Set Palmistry-specific data for the API
+          params.set('handSide', val('handSide') || 'right');
+          params.set('dominant', val('dominant') || 'dominant');
+          params.set('focusLine', val('focusLine') || 'life');
+
+          // --- 3. Redirect to the locked reading page ---
+          // The reading.html page will lock, then read these params
+          location.href = './reading.html?' + params.toString();
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
