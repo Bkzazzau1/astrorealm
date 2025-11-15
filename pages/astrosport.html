@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-g" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>AstroSport ⚽ • AstroRealm</title>
     <meta
@@ -9,24 +9,11 @@
       content="AstroSport – Compliance: No medical, legal, gambling, or guaranteed financial outcomes."
     />
 
-    <!-- From /pages/* go one level up to /assets -->
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
 
-    <!-- 🔒 CPAGrip Wall Locker -->
-    <script type="text/javascript">var lck = false;</script>
-    <script
-      type="text/javascript"
-      src="https://quartzfiles.com/script_include.php?id=1855685"
-    ></script>
-    <script type="text/javascript">
-      if (!lck) {
-        top.location = 'https://quartzfiles.com/help/ablk.php?lkt=4';
-      }
-    </script>
-    <!-- 🔒 End CPAGrip -->
-
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
@@ -54,7 +41,6 @@
         padding: 10px 12px;
         color: var(--text);
       }
-      /* black dropdown */
       select,
       select:focus {
         background-color: #0a0b10;
@@ -129,25 +115,21 @@
         <em>mindset and timing</em>—<strong>no gambling predictions</strong>.
       </p>
 
-      <!-- Quick presets (auto-fill question/notes if you like) -->
       <div class="grid mt-2" id="presetGrid">
         <button class="card clickable" type="button" data-notes="Weekly star guidance for my club.">
           <h3>Weekly star guidance for my club</h3>
           <p>Mindset & timing cues for fans.</p>
         </button>
-
         <button class="card clickable" type="button" data-notes="Timing & mindset for the derby.">
           <h3>Timing & mindset: Team A vs Team B</h3>
           <p>Set expectations and rhythm.</p>
         </button>
-
         <button class="card clickable" type="button" data-notes="Best fan approach this week.">
           <h3>Fan approach this week</h3>
           <p>Observe • Share • Celebrate (lightly).</p>
         </button>
       </div>
 
-      <!-- Horary Intake Form -->
       <form class="card mt-2" id="sportForm" novalidate>
         <div class="section-title">Match Details (Horary)</div>
         <div class="form-grid">
@@ -159,7 +141,6 @@
             <label for="teamB">Team B <span style="color: var(--gold)">*</span></label>
             <input id="teamB" placeholder="e.g., Real Madrid" required />
           </div>
-
           <div class="field">
             <label for="matchDate">Match Date <span style="color: var(--gold)">*</span></label>
             <input id="matchDate" type="date" required />
@@ -168,7 +149,6 @@
             <label for="matchTime">Kick-off Time <span style="color: var(--gold)">*</span></label>
             <input id="matchTime" type="time" required />
           </div>
-
           <div class="field">
             <label for="venue">Venue / City <span style="color: var(--gold)">*</span></label>
             <input id="venue" placeholder="e.g., Santiago Bernabéu, Madrid" required />
@@ -192,7 +172,6 @@
             </select>
           </div>
         </div>
-
         <div class="section-title">Chart Anchor</div>
         <div class="row" role="group" aria-label="Chart anchor choice">
           <label class="radio">
@@ -210,7 +189,6 @@
             prefer.</small
           >
         </p>
-
         <div class="section-title">Your Info</div>
         <div class="form-grid">
           <div class="field">
@@ -230,7 +208,6 @@
             </select>
           </div>
         </div>
-
         <div class="section-title">Notes (optional)</div>
         <div class="field">
           <label for="notes">Add context for the reading</label>
@@ -240,18 +217,12 @@
             placeholder="Injuries, rivalry, your feelings, etc."
           ></textarea>
         </div>
-
         <div class="error" id="formError"></div>
 
         <div class="unlock-wrap mt-2">
-          <!-- 🔑 Now we go to the 3-task unlock page instead of direct CPAlead -->
-          <a
-            href="./unlock.html?topic=astrosport"
-            id="unlockBtn"
-            class="unlock-btn"
-            role="button"
-            >Continue to Unlock (3 Tasks)</a
-          >
+          <button id="submitBtn" class="unlock-btn" role="button">
+            Get Your Reading
+          </button>
           <span class="hint"
             >Complete the form, then continue to unlock your star-based mindset reading (no gambling predictions).</span
           >
@@ -266,75 +237,70 @@
     <script>
       (function () {
         const presetGrid = document.getElementById('presetGrid');
-        const notes = document.getElementById('notes');
-        const unlockBtn = document.getElementById('unlockBtn');
+        const notesEl = document.getElementById('notes');
+        const submitBtn = document.getElementById('submitBtn'); // Renamed from unlockBtn
         const errorEl = document.getElementById('formError');
 
         // quick presets -> fill notes
         presetGrid?.addEventListener('click', (e) => {
           const btn = e.target.closest('[data-notes]');
           if (!btn) return;
-          notes.value = btn.getAttribute('data-notes') || '';
-          notes.focus();
+          notesEl.value = btn.getAttribute('data-notes') || '';
+          notesEl.focus();
         });
 
-        function required(id) {
+        function val(id) {
           return document.getElementById(id).value.trim();
         }
 
-        unlockBtn.addEventListener('click', (e) => {
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Stop default form submission
           errorEl.style.display = 'none';
 
-          const teamA = required('teamA');
-          const teamB = required('teamB');
-          const matchDate = required('matchDate');
-          const matchTime = required('matchTime');
-          const venue = required('venue');
-          const language = document.getElementById('language').value;
-          const tz = document.getElementById('tz').value || null;
-          const support = document.getElementById('support').value.trim() || null;
-          const anchor =
-            (document.querySelector('input[name="anchor"]:checked') || {}).value || 'kickoff';
-          const extra = notes.value.trim() || null;
+          // --- 1. Validation ---
+          const teamA = val('teamA');
+          const teamB = val('teamB');
+          const matchDate = val('matchDate');
+          const matchTime = val('matchTime');
+          const venue = val('venue');
+          const language = val('language');
 
           if (!teamA || !teamB || !matchDate || !matchTime || !venue || !language) {
-            e.preventDefault();
             errorEl.textContent = 'Please fill Teams, Date, Time, Venue and Language.';
             errorEl.style.display = 'block';
             return;
           }
 
-          // Build ISO-like kickoff time (client local; backend can adjust with tz if provided)
-          const kickoffLocal = new Date(`${matchDate}T${matchTime}`);
-          const payload = {
-            topic: 'astrosport',
-            method: 'horary',
-            anchor, // 'kickoff' or 'question'
-            language,
-            match: {
-              teamA,
-              teamB,
-              date: matchDate,
-              time: matchTime,
-              kickoffISO: isNaN(kickoffLocal.getTime()) ? null : kickoffLocal.toISOString(),
-              venue,
-              timezone: tz,
-            },
-            supporter: support,
-            notes: extra,
-            createdAt: new Date().toISOString(),
-          };
+          // --- 2. Build URL Parameters ---
+          // We build a question string that reading.html can display
+          const question = `AstroSport: ${teamA} vs ${teamB}`;
+          
+          // Get other optional values
+          const support = val('support');
+          const notes = val('notes');
 
-          try {
-            localStorage.setItem('astroReading', JSON.stringify(payload));
-            // optional: reset task counter for this new reading session
-            localStorage.removeItem('astrogate_tasks_done');
-          } catch (err) {
-            console.warn('localStorage failed', err);
-          }
-          // no preventDefault here: after saving data, browser will follow href to unlock.html
+          const params = new URLSearchParams();
+          params.set('topic', 'astrosport');
+          params.set('from', 'astrosport'); // For the "Ask Again" link
+          params.set('question', question);
+          params.set('lang', language);
+          
+          // Add optional params only if they exist
+          if (support) params.set('name', `Fan of ${support}`); // Use 'name' to show support
+          if (notes) params.set('notes', notes);
+          
+          // We can send match details to the API via the params
+          // Your reading.html already sends all params to the API
+          params.set('match_teamA', teamA);
+          params.set('match_teamB', teamB);
+          params.set('match_date', matchDate);
+          params.set('match_time', matchTime);
+          params.set('match_venue', venue);
+
+          // --- 3. Redirect to the locked reading page ---
+          location.href = './reading.html?' + params.toString();
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
