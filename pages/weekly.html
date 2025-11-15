@@ -11,12 +11,11 @@
 
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
-
       .form-grid {
         display: grid;
         gap: 12px;
@@ -27,13 +26,11 @@
           grid-template-columns: 1fr;
         }
       }
-
       .field {
         display: flex;
         flex-direction: column;
         gap: 6px;
       }
-
       .field input,
       .field select,
       .field textarea {
@@ -43,7 +40,6 @@
         padding: 10px 12px;
         color: var(--text);
       }
-
       select,
       select:focus {
         background-color: #0a0b10;
@@ -68,27 +64,23 @@
         background-size: 16px 16px;
         padding-right: 2.2rem;
       }
-
       .section-title {
         margin: 16px 0 8px;
         font-size: 1.05rem;
         color: var(--gold);
       }
-
       .error {
         color: #ffb4b4;
         font-size: 0.9rem;
         display: none;
         margin-top: 6px;
       }
-
       .unlock-wrap {
         display: flex;
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
       }
-
       .clickable {
         cursor: pointer;
       }
@@ -114,25 +106,21 @@
         and meaningful course corrections.
       </p>
 
-      <!-- Preset questions -->
       <div class="grid mt-2" aria-label="Questions" id="presetGrid">
         <button class="card clickable" type="button" data-question="What should I focus on this week?">
           <h3>Focus for this week</h3>
           <p>Momentum • leverage • main priority.</p>
         </button>
-
         <button class="card clickable" type="button" data-question="What is my best timing window this week?">
           <h3>Best timing window</h3>
           <p>Days to push • days to observe.</p>
         </button>
-
         <button class="card clickable" type="button" data-question="What small correction should I make this week?">
           <h3>One small correction</h3>
           <p>Micro-adjustment • compounding effect.</p>
         </button>
       </div>
 
-      <!-- Intake form -->
       <form class="card mt-2" id="weeklyForm" novalidate>
         <div class="section-title">Your Question</div>
         <div class="field">
@@ -143,49 +131,41 @@
             placeholder="Type your weekly question or click a preset above..."
           ></textarea>
         </div>
-
         <div class="section-title">Week Window</div>
         <div class="form-grid">
           <div class="field">
             <label for="weekStart">Week starting (optional)</label>
             <input id="weekStart" type="date" />
           </div>
-
           <div class="field">
             <label for="currentCity">Current City & Country (optional)</label>
             <input id="currentCity" placeholder="e.g., Zaria, Nigeria" />
           </div>
         </div>
-
         <div class="section-title">Birth Data (Zodiac)</div>
         <div class="form-grid">
           <div class="field">
             <label for="name">Your Name</label>
             <input id="name" placeholder="e.g., Aisha Musa" />
           </div>
-
           <div class="field">
             <label for="dob">Date of Birth (if known)</label>
             <input id="dob" type="date" />
           </div>
-
           <div class="field">
             <label for="tob">Time of Birth (optional)</label>
             <input id="tob" type="time" />
           </div>
-
           <div class="field">
             <label for="birthplace">Birthplace (City & Country)</label>
             <input id="birthplace" placeholder="e.g., Zaria, Nigeria" />
           </div>
         </div>
-
         <div class="form-grid">
           <div class="field">
             <label for="mother">Mother's First Name (use if DOB unknown)</label>
             <input id="mother" placeholder="e.g., Zainab" />
           </div>
-
           <div class="field">
             <label for="language">Answer Language <span class="gold">*</span></label>
             <select id="language">
@@ -199,18 +179,15 @@
             </select>
           </div>
         </div>
-
         <div class="section-title">Notes (optional)</div>
         <textarea id="notes" rows="3"></textarea>
 
         <div class="error" id="formError"></div>
 
         <div class="unlock-wrap mt-2">
-          <!-- NEW UNLOCK FLOW -->
-          <a href="./unlock.html?topic=weekly" id="unlockBtn" class="unlock-btn">
-            Continue to Unlock (3 Tasks)
-          </a>
-
+          <button id="submitBtn" class="unlock-btn" role="button">
+            Submit & Get Reading
+          </button>
           <span class="hint">
             Compliance: No medical, legal, gambling, or guaranteed financial outcomes.
           </span>
@@ -226,7 +203,7 @@
       (function () {
         const presetGrid = document.getElementById("presetGrid");
         const qBox = document.getElementById("question");
-        const unlockBtn = document.getElementById("unlockBtn");
+        const submitBtn = document.getElementById("submitBtn"); // Changed from unlockBtn
         const errorEl = document.getElementById("formError");
 
         // Preset question auto-fill
@@ -241,62 +218,60 @@
           return (document.getElementById(id)?.value || "").trim();
         }
 
+        // Helper from your original script
         function either(dob, mother) {
           return !!dob || (mother && mother.trim().length >= 2);
         }
 
-        unlockBtn.addEventListener("click", (e) => {
+        submitBtn.addEventListener("click", (e) => {
+          e.preventDefault(); // Stop the button's default action
           errorEl.style.display = "none";
 
+          // --- 1. Validation (from your original script) ---
           const question = val("question");
           const language = val("language");
           const dob = val("dob");
           const mother = val("mother");
 
           if (!question || !language) {
-            e.preventDefault();
             errorEl.textContent = "Please fill your weekly question and choose a language.";
             errorEl.style.display = "block";
             return;
           }
 
           if (!either(dob, mother)) {
-            e.preventDefault();
             errorEl.textContent =
               "Provide Date of Birth or your mother's first name (if DOB is unknown).";
             errorEl.style.display = "block";
             return;
           }
 
-          const payload = {
-            topic: "weekly",
-            method: "zodiac",
-            language,
-            question,
-            week: {
-              startDate: val("weekStart") || null,
-              currentCity: val("currentCity") || null,
-            },
-            seeker: {
-              name: val("name") || null,
-              dob: dob || null,
-              tob: val("tob") || null,
-              birthplace: val("birthplace") || null,
-              mother: mother || null,
-            },
-            notes: val("notes") || null,
-            createdAt: new Date().toISOString(),
-          };
+          // --- 2. Build URL Parameters ---
+          const params = new URLSearchParams();
+          params.set('topic', 'weekly');
+          params.set('from', 'weekly'); // For the "Ask Again" link
 
-          try {
-            localStorage.setItem("astroReading", JSON.stringify(payload));
-            localStorage.setItem("astroTaskProgress", JSON.stringify({ required: 3, done: 0 }));
-            localStorage.removeItem("astrogate_tasks_done");
-          } catch (err) {
-            console.warn("localStorage failed", err);
-          }
+          // Set primary data
+          params.set('question', question);
+          params.set('lang', language);
+
+          // Set seeker data
+          if (val('name')) params.set('name', val('name'));
+          if (dob) params.set('dob', dob);
+          if (mother) params.set('mother', mother);
+          if (val('tob')) params.set('tob', val('tob'));
+          if (val('birthplace')) params.set('birthplace', val('birthplace'));
+
+          // Set week-specific data
+          if (val('weekStart')) params.set('weekStart', val('weekStart'));
+          if (val('currentCity')) params.set('currentCity', val('currentCity'));
+          if (val('notes')) params.set('notes', val('notes'));
+
+          // --- 3. Redirect to the locked reading page ---
+          // The reading.html page will lock, then read these params
+          location.href = './reading.html?' + params.toString();
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
