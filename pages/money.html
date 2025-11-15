@@ -11,12 +11,11 @@
 
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
-
       .form-grid {
         display: grid;
         gap: 12px;
@@ -27,7 +26,6 @@
           grid-template-columns: 1fr;
         }
       }
-
       .field {
         display: flex;
         flex-direction: column;
@@ -42,7 +40,6 @@
         padding: 10px 12px;
         color: var(--text);
       }
-
       select,
       select:focus {
         background-color: #0a0b10;
@@ -53,17 +50,14 @@
         -webkit-appearance: none;
         -moz-appearance: none;
       }
-
       select option {
         background: #0a0b10;
         color: var(--text);
       }
-
       select:focus {
         box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.35);
         border-color: var(--gold);
       }
-
       select {
         background-image: linear-gradient(to bottom, transparent 0%, transparent 100%),
           url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23d4af37'><path d='M4 6l4 4 4-4'/></svg>");
@@ -72,7 +66,6 @@
         background-size: 16px 16px;
         padding-right: 2.2rem;
       }
-
       .section-title {
         margin: 16px 0 8px;
         font-size: 1.05rem;
@@ -127,7 +120,6 @@
       <h1 class="mt-2">Money & Prosperity 💰</h1>
       <p class="hint">Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</p>
 
-      <!-- Presets -->
       <div class="grid mt-2" id="presetGrid">
         <button
           class="card clickable"
@@ -137,7 +129,6 @@
           <h3>What is happening in my finances now?</h3>
           <p>Cashflow • leaks • quick wins.</p>
         </button>
-
         <button
           class="card clickable"
           type="button"
@@ -146,7 +137,6 @@
           <h3>What should I focus on this week?</h3>
           <p>7-day priorities & timing windows.</p>
         </button>
-
         <button
           class="card clickable"
           type="button"
@@ -157,27 +147,23 @@
         </button>
       </div>
 
-      <!-- Form -->
       <form class="card mt-2" id="moneyForm" novalidate>
         <div class="section-title">Your Question</div>
         <div class="field">
           <label for="question">Describe your finance question <span class="gold">*</span></label>
           <textarea id="question" rows="3" required></textarea>
         </div>
-
         <div class="section-title">Chart Anchor</div>
         <div class="row">
           <label class="radio"><input type="radio" name="anchor" value="now" checked /> Now</label>
           <label class="radio"><input type="radio" name="anchor" value="event" /> Event Time</label>
         </div>
-
         <div class="section-title">Location & Time</div>
         <div class="form-grid">
           <div class="field">
             <label for="city">City & Country <span class="gold">*</span></label>
             <input id="city" required placeholder="e.g., Zaria, Nigeria" />
           </div>
-
           <div class="field">
             <label for="tz">Time Zone (optional)</label>
             <select id="tz">
@@ -187,7 +173,6 @@
               <option value="UTC+2">UTC+2</option>
             </select>
           </div>
-
           <div class="field">
             <label for="eventDate">Event Date (if event)</label>
             <input id="eventDate" type="date" />
@@ -197,13 +182,11 @@
             <input id="eventTime" type="time" />
           </div>
         </div>
-
         <div class="section-title">Seeker</div>
         <div class="form-grid">
-          <div class="field"><label>Your Name</label><input id="seekerName" /></div>
-          <div class="field"><label>Date of Birth</label><input id="seekerDob" type="date" /></div>
-          <div class="field"><label>Mother's Name</label><input id="seekerMother" /></div>
-
+          <div class="field"><label for="seekerName">Your Name</label><input id="seekerName" /></div>
+          <div class="field"><label for="seekerDob">Date of Birth</label><input id="seekerDob" type="date" /></div>
+          <div class="field"><label for="seekerMother">Mother's Name</label><input id="seekerMother" /></div>
           <div class="field">
             <label for="language">Answer Language <span class="gold">*</span></label>
             <select id="language" required>
@@ -217,21 +200,15 @@
             </select>
           </div>
         </div>
-
         <div class="section-title">Notes (optional)</div>
         <textarea id="notes" rows="3"></textarea>
 
         <div class="error" id="formError"></div>
 
         <div class="unlock-wrap mt-2">
-          <a
-            href="./unlock.html?topic=money"
-            id="unlockBtn"
-            class="unlock-btn"
-            role="button"
-          >
-            Continue to Unlock (3 Tasks)
-          </a>
+          <button id="submitBtn" class="unlock-btn" role="button">
+            Submit & Get Reading
+          </button>
           <span class="hint"
             >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</span
           >
@@ -243,12 +220,11 @@
       </footer>
     </div>
 
-    <!-- FIXED SCRIPT -->
     <script>
       (function () {
         const presetGrid = document.getElementById('presetGrid');
         const qBox = document.getElementById('question');
-        const unlockBtn = document.getElementById('unlockBtn');
+        const submitBtn = document.getElementById('submitBtn'); // Changed from unlockBtn
         const errorEl = document.getElementById('formError');
 
         // preset → fill question
@@ -263,65 +239,60 @@
           return (document.getElementById(id)?.value || '').trim();
         }
 
-        unlockBtn.addEventListener('click', (e) => {
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Stop the button's default action
           errorEl.style.display = 'none';
 
+          // --- 1. Validation (from your original script) ---
           const question = val('question');
           const anchor =
             (document.querySelector('input[name="anchor"]:checked') || {}).value || 'now';
           const city = val('city');
-          const tz = val('tz') || null;
-
+          const language = val('language');
           const eventDate = val('eventDate');
           const eventTime = val('eventTime');
-          const language = val('language');
 
           if (!question || !city || !language) {
-            e.preventDefault();
             errorEl.textContent = 'Please fill your question, city, and language.';
             errorEl.style.display = 'block';
             return;
           }
 
           if (anchor === 'event' && (!eventDate || !eventTime)) {
-            e.preventDefault();
             errorEl.textContent = 'Provide Event Date + Time.';
             errorEl.style.display = 'block';
             return;
           }
 
-          let eventISO = null;
+          // --- 2. Build URL Parameters ---
+          const params = new URLSearchParams();
+          params.set('topic', 'money');
+          params.set('from', 'money'); // For the "Ask Again" link
+
+          // Set primary data
+          params.set('question', question);
+          params.set('lang', language);
+
+          // Set seeker data (if provided)
+          if (val('seekerName')) params.set('name', val('seekerName'));
+          if (val('seekerDob')) params.set('dob', val('seekerDob'));
+          if (val('seekerMother')) params.set('mother', val('seekerMother'));
+
+          // Set Horary-specific data for the API
+          params.set('anchor', anchor);
+          params.set('city', city);
+          if (val('tz')) params.set('tz', val('tz'));
+          if (val('notes')) params.set('notes', val('notes'));
           if (anchor === 'event') {
-            const dt = new Date(`${eventDate}T${eventTime}`);
-            if (!isNaN(dt.getTime())) eventISO = dt.toISOString();
+            params.set('eventDate', eventDate);
+            params.set('eventTime', eventTime);
           }
 
-          const payload = {
-            topic: 'money',
-            method: 'horary',
-            anchor,
-            language,
-            question,
-            location: { cityCountry: city, timezone: tz },
-            seeker: {
-              name: val('seekerName') || null,
-              dob: val('seekerDob') || null,
-              mother: val('seekerMother') || null,
-            },
-            notes: val('notes') || null,
-            event: anchor === 'event' ? { date: eventDate, time: eventTime, iso: eventISO } : null,
-            createdAt: new Date().toISOString(),
-          };
-
-          try {
-            localStorage.setItem('astroReading', JSON.stringify(payload));
-            localStorage.setItem('astroTaskProgress', JSON.stringify({ required: 3, done: 0 }));
-            localStorage.removeItem('astrogate_tasks_done'); // RESET task count
-          } catch (err) {
-            console.warn('localStorage failed', err);
-          }
+          // --- 3. Redirect to the locked reading page ---
+          // The reading.html page will lock, then read these params
+          location.href = './reading.html?' + params.toString();
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
