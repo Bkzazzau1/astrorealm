@@ -8,16 +8,13 @@
       name="description"
       content="Career & Purpose readings via Zodiac or Horary. Complete three tasks to unlock."
     />
-
-    <!-- From /pages/* go one level up to /assets -->
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
       :root {
         color-scheme: dark;
       }
-
+      /* ... [All your CSS styles remain unchanged] ... */
       .tabs {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -38,7 +35,6 @@
       .hidden {
         display: none !important;
       }
-
       .form-grid {
         display: grid;
         gap: 12px;
@@ -63,8 +59,6 @@
         padding: 10px 12px;
         color: var(--text);
       }
-
-      /* Black dropdown */
       select,
       select:focus {
         background-color: #0a0b10;
@@ -91,7 +85,6 @@
         background-size: 16px 16px, 16px 16px;
         padding-right: 2.2rem;
       }
-
       .section-title {
         margin: 16px 0 8px;
         font-size: 1.05rem;
@@ -151,7 +144,6 @@
         <strong>Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</strong>.
       </p>
 
-      <!-- Method Tabs -->
       <div class="tabs mt-2" role="tablist" aria-label="Reading method">
         <button
           class="tab-btn active"
@@ -172,8 +164,6 @@
           Horary Method
         </button>
       </div>
-
-      <!-- Presets -->
       <div class="grid mt-2" id="presetGrid">
         <button
           class="card clickable"
@@ -200,8 +190,6 @@
           <p>Delays • overheads • safer choices.</p>
         </button>
       </div>
-
-      <!-- Zodiac Panel -->
       <section class="card mt-2" id="panelZodiac" role="tabpanel" aria-labelledby="tabZodiac">
         <div class="section-title">Your Question</div>
         <div class="field">
@@ -216,7 +204,6 @@
           ></textarea>
           <div class="hint">Zodiac uses your birth data to frame the guidance.</div>
         </div>
-
         <div class="section-title">Birth Data</div>
         <div class="form-grid">
           <div class="field">
@@ -254,15 +241,12 @@
             </select>
           </div>
         </div>
-
         <div class="section-title">Notes (optional)</div>
         <div class="field">
           <label for="zNotes">Add context (industry, study plan, role, etc.)</label>
           <textarea id="zNotes" rows="3"></textarea>
         </div>
       </section>
-
-      <!-- Horary Panel -->
       <section
         class="card mt-2 hidden"
         id="panelHorary"
@@ -282,7 +266,6 @@
           ></textarea>
           <div class="hint">Horary uses the moment of asking or a specific event.</div>
         </div>
-
         <div class="section-title">Chart Anchor</div>
         <div class="row" role="group" aria-label="Chart anchor">
           <label class="radio"
@@ -296,7 +279,6 @@
             ></label
           >
         </div>
-
         <div class="section-title">Location & Time</div>
         <div class="form-grid">
           <div class="field">
@@ -308,7 +290,7 @@
             <select id="hTz">
               <option value="">Auto/Local</option>
               <option value="UTC-1">UTC-1</option>
-              <option value="UTC">UTC</option>
+              <option value."UTC">UTC</option>
               <option value="UTC+1">UTC+1</option>
               <option value="UTC+2">UTC+2</option>
               <option value="UTC+3">UTC+3</option>
@@ -330,7 +312,6 @@
             <input id="hEventTime" type="time" />
           </div>
         </div>
-
         <div class="section-title">Seeker (optional)</div>
         <div class="form-grid">
           <div class="field">
@@ -352,13 +333,12 @@
               <option value="en">English</option>
               <option value="ha">Hausa</option>
               <option value="ar">Arabic</option>
-              <option value="fr">French</option>
+              <option value"fr">French</option>
               <option value="es">Spanish</option>
               <option value="hi">Hindi</option>
             </select>
           </div>
         </div>
-
         <div class="section-title">Notes (optional)</div>
         <div class="field">
           <label for="hNotes">Add context (job search, promotion, study, etc.)</label>
@@ -369,14 +349,13 @@
       <div class="error" id="formError"></div>
 
       <div class="unlock-wrap mt-2">
-        <!-- Now we go to 3-task unlock page -->
         <a
-          href="./unlock.html?topic=career"
+          href="./reading.html"
           id="unlockBtn"
           class="unlock-btn"
           role="button"
         >
-          Continue to Unlock (3 Tasks)
+          Submit & Get Reading
         </a>
         <span class="hint"
           >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</span
@@ -475,10 +454,12 @@
 
             try {
               localStorage.setItem('astroReading', JSON.stringify(payload));
-              // reset unlock counter for new session
-              localStorage.removeItem('astrogate_tasks_done');
+              localStorage.removeItem('astrogate_tasks_done'); // Kept this from your original code
             } catch (err) {
               console.warn('localStorage failed', err);
+              e.preventDefault(); // Stop navigation if storage fails
+              errorEl.textContent = 'Error saving data. Please enable localStorage/cookies.';
+              errorEl.style.display = 'block';
             }
           } else {
             // Horary branch
@@ -528,10 +509,12 @@
 
             try {
               localStorage.setItem('astroReading', JSON.stringify(payload));
-              // reset unlock counter for new session
-              localStorage.removeItem('astrogate_tasks_done');
+              localStorage.removeItem('astrogate_tasks_done'); // Kept this from your original code
             } catch (err) {
               console.warn('localStorage failed', err);
+              e.preventDefault(); // Stop navigation if storage fails
+              errorEl.textContent = 'Error saving data. Please enable localStorage/cookies.';
+              errorEl.style.display = 'block';
             }
           }
         });
