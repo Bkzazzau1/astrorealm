@@ -9,11 +9,10 @@
       content="Destiny Reading (Horary). Complete three tasks to unlock your reading."
     />
 
-    <!-- From /pages/* go one level up to /assets -->
     <link rel="stylesheet" href="../assets/css/base.css" />
     <link rel="stylesheet" href="../assets/css/theme.css" />
-
     <style>
+      /* ... [All your CSS styles remain unchanged] ... */
       :root {
         color-scheme: dark;
       }
@@ -41,7 +40,6 @@
         padding: 10px 12px;
         color: var(--text);
       }
-      /* Black dropdown for selects */
       select,
       select:focus {
         background-color: #0a0b10;
@@ -124,7 +122,6 @@
         <strong>no guaranteed outcomes</strong>.
       </p>
 
-      <!-- Preset prompts -->
       <div class="grid mt-2" id="presetGrid" aria-label="Questions">
         <button
           class="card clickable"
@@ -134,12 +131,10 @@
           <h3>What is happening in my life now?</h3>
           <p>Current energy & immediate path.</p>
         </button>
-
         <button class="card clickable" type="button" data-question="What is my destiny this week?">
           <h3>What is my destiny this week?</h3>
           <p>7-day momentum & timing.</p>
         </button>
-
         <button
           class="card clickable"
           type="button"
@@ -150,7 +145,6 @@
         </button>
       </div>
 
-      <!-- Horary Intake Form -->
       <form class="card mt-2" id="destinyForm" novalidate>
         <div class="section-title">Your Question</div>
         <div class="field">
@@ -163,7 +157,6 @@
           ></textarea>
           <div class="hint">One clear focus works best in horary.</div>
         </div>
-
         <div class="section-title">Chart Anchor</div>
         <div class="row" role="group" aria-label="Chart anchor">
           <label class="radio">
@@ -175,7 +168,6 @@
             <span>Use a specific event time</span>
           </label>
         </div>
-
         <div class="section-title">Location & Time</div>
         <div class="form-grid">
           <div class="field">
@@ -200,8 +192,6 @@
               <option value="UTC-9">UTC-9</option>
             </select>
           </div>
-
-          <!-- Event fields (required only if anchor=event) -->
           <div class="field">
             <label for="eventDate">Event Date (if using event)</label>
             <input id="eventDate" type="date" />
@@ -211,7 +201,6 @@
             <input id="eventTime" type="time" />
           </div>
         </div>
-
         <div class="section-title">Seeker (optional but helpful)</div>
         <div class="form-grid">
           <div class="field">
@@ -239,7 +228,6 @@
             </select>
           </div>
         </div>
-
         <div class="section-title">Notes (optional)</div>
         <div class="field">
           <label for="notes">Add context (health, travel, relationship, work, etc.)</label>
@@ -253,14 +241,9 @@
         <div class="error" id="formError"></div>
 
         <div class="unlock-wrap mt-2">
-          <!-- Go to 3-task unlock page -->
-          <a
-            href="./unlock.html?topic=destiny"
-            id="unlockBtn"
-            class="unlock-btn"
-            role="button"
-            >Continue to Unlock (3 Tasks)</a
-          >
+          <button id="submitBtn" class="unlock-btn" role="button">
+            Submit & Get Reading
+          </button>
           <span class="hint"
             >Compliance: No medical, legal, gambling, or guaranteed financial outcomes.</span
           >
@@ -276,7 +259,7 @@
       (function () {
         const presetGrid = document.getElementById('presetGrid');
         const qBox = document.getElementById('question');
-        const unlockBtn = document.getElementById('unlockBtn');
+        const submitBtn = document.getElementById('submitBtn'); // Changed from unlockBtn
         const errorEl = document.getElementById('formError');
 
         // preset → fill question
@@ -291,74 +274,60 @@
           return (document.getElementById(id)?.value || '').trim();
         }
 
-        unlockBtn.addEventListener('click', (e) => {
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault(); // Stop the button's default action
           errorEl.style.display = 'none';
 
+          // --- 1. Validation (from your original script) ---
           const question = val('question');
           const anchor =
             (document.querySelector('input[name="anchor"]:checked') || {}).value || 'now';
           const city = val('city');
-          const tz = val('tz') || null;
-
+          const language = val('language');
           const eventDate = val('eventDate');
           const eventTime = val('eventTime');
 
-          const language = val('language');
-
           if (!question || !city || !language) {
-            e.preventDefault();
             errorEl.textContent = 'Please fill your question, city/country, and language.';
             errorEl.style.display = 'block';
             return;
           }
 
           if (anchor === 'event' && (!eventDate || !eventTime)) {
-            e.preventDefault();
             errorEl.textContent = 'For event anchor, provide both Event Date and Event Time.';
             errorEl.style.display = 'block';
             return;
           }
+          
+          // --- 2. Build URL Parameters ---
+          const params = new URLSearchParams();
+          params.set('topic', 'destiny');
+          params.set('from', 'destiny'); // For the "Ask Again" link
+          
+          // Set primary data
+          params.set('question', question);
+          params.set('lang', language);
 
-          let eventISO = null;
+          // Set seeker data (if provided)
+          if (val('seekerName')) params.set('name', val('seekerName'));
+          if (val('seekerDob')) params.set('dob', val('seekerDob'));
+          if (val('seekerMother')) params.set('mother', val('seekerMother'));
+
+          // Set Horary-specific data for the API
+          params.set('anchor', anchor);
+          params.set('city', city);
+          if (val('tz')) params.set('tz', val('tz'));
+          if (val('notes')) params.set('notes', val('notes'));
           if (anchor === 'event') {
-            const dt = new Date(`${eventDate}T${eventTime}`);
-            if (!isNaN(dt.getTime())) eventISO = dt.toISOString();
+             params.set('eventDate', eventDate);
+             params.set('eventTime', eventTime);
           }
-
-          const payload = {
-            topic: 'destiny',
-            method: 'horary',
-            anchor, // 'now' or 'event'
-            language,
-            question,
-            location: { cityCountry: city, timezone: tz },
-            event:
-              anchor === 'event'
-                ? {
-                    date: eventDate || null,
-                    time: eventTime || null,
-                    iso: eventISO,
-                  }
-                : null,
-            seeker: {
-              name: val('seekerName') || null,
-              dob: val('seekerDob') || null,
-              mother: val('seekerMother') || null,
-            },
-            notes: val('notes') || null,
-            createdAt: new Date().toISOString(),
-          };
-
-          try {
-            localStorage.setItem('astroReading', JSON.stringify(payload));
-            // reset 3-task counter for this new session
-            localStorage.removeItem('astrogate_tasks_done');
-          } catch (err) {
-            console.warn('localStorage failed', err);
-          }
-          // allow navigation to unlock.html after saving
+          
+          // --- 3. Redirect to the locked reading page ---
+          // The reading.html page will lock, then read these params
+          location.href = './reading.html?' + params.toString();
         });
       })();
     </script>
-  </body>
+    </body>
 </html>
